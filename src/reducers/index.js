@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux'
 import {
-  TEST, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_SUCCESS, QUOTE_REQUEST
+  TEST, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_SUCCESS, QUOTE_REQUEST, STORE_MY_DATA
 } from '../actions'
 
 function auth(state = {
@@ -40,6 +40,18 @@ function auth(state = {
   }
 }
 
+function retrieve(state = {}, action) {
+  switch (action.type) {
+    case STORE_MY_DATA:
+      return Object.assign({}, state, {
+        hey: true,
+        userData: action.data
+      })
+    default:
+      return state
+  }
+}
+
 function test(state = {}, action) {
   switch (action.type) {
     case TEST:
@@ -50,4 +62,4 @@ function test(state = {}, action) {
   }
 }
 
-export default combineReducers({auth, test})
+export default combineReducers({auth, retrieve, test})

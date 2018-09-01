@@ -22,8 +22,10 @@ function customError(name) {
 }
 
 var errors = {
-  NoToken: true,
-  TokenExpired: true
+  TableNotFound: true,
+  UserNotFound: true,
+  UserAlreadyExists: true,
+  InvalidEmail: true
 }
 for (var err of Object.keys(errors)) {
   errors[err] = customError(err)

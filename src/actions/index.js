@@ -1,4 +1,5 @@
 import api from '../utils/api';
+import errors from '../utils/errors';
 
 export const TEST = 'TEST'
 
@@ -13,6 +14,8 @@ export const LOGIN_FAILURE = 'LOGIN_FAILURE'
 export const QUOTE_REQUEST = 'QUOTE_REQUEST'
 export const QUOTE_SUCCESS = 'QUOTE_SUCCESS'
 export const QUOTE_FAILURE = 'QUOTE_FAILURE'
+
+export const STORE_MY_DATA = 'STORE_MY_DATA'
 
 
 export function test() {
@@ -64,6 +67,13 @@ function receiveLogout() {
   }
 }
 
+function storeMyData(data) {
+  return {
+    type: STORE_MY_DATA,
+    data: data
+  }
+}
+
 
 export function logoutUser() {
     return dispatch => {
@@ -77,6 +87,8 @@ export function logoutUser() {
           localStorage.removeItem('id_token')
           localStorage.removeItem('access_token')
           dispatch(receiveLogout())
+
+          window.location.reload()
         })
     }
 }
@@ -88,19 +100,37 @@ export function loginUser(creds) {
   
       // user: サーバからの json 本体
       return api.createSession(creds.username, creds.password)
-        .then(response =>
-          response.json().then(user => ({ user, response }))
-        ).then(({ user, response }) =>  {
-          if (!response.ok) {
-            dispatch(loginError(user.message))
-            return Promise.reject(user)
-          } else {
-            localStorage.setItem('id_token', user.id_token)
-            //localStorage.setItem('access_token', user.access_token)
-            dispatch(receiveLogin(user))
-            console.log(user);
-          }
-        }).catch(err => console.log("Error: ", err))
+      .then(result =>  {
+        if (!result.ok) {
+          dispatch(loginError(result.message));
+          return Promise.reject(result);
+        } else {
+          localStorage.setItem('id_token', result.id_token);
+          //localStorage.setItem('access_token', user.access_token)
+          dispatch(receiveLogin(result));
+
+          window.location.reload()
+        }
+      }).catch(err => console.log("Error: ", err))
     }
+}
+
+export function getMyInfo() {
+
+  return dispatch => {
+    return api.getMyInfo().then(result => {
+      let data = {
+        username: result.username,
+        email: result.email
+      }
+      console.log(result)
+      dispatch(storeMyData(data))
+    }).catch(e => {
+      console.log(e)
+      if (errors.NoToken.is(e)) {
+        console.log("トークンがありませｎ")
+      }
+    })
+  }
 }
 

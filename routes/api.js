@@ -10,6 +10,7 @@ var secret = require('../config/secret').secret;
 const crypto = require('crypto');
 const hash = crypto.createHash('sha512');
 
+import errors from '../utils/errors'
 var mail = require('../utils/mail');
 
 var expiresIn = 10; //604800; // 秒, 一週間？
@@ -18,16 +19,12 @@ var expiresIn = 10; //604800; // 秒, 一週間？
 var messages = {
     
 }
-function response_error(error) {
-
-}
-function response(req, status, id, additional_message = "") {
-    var msg = messages[id].text + additional_message
-    console.log(`${id} (${status}): ${msg}`)
-    req.status(status).json({
+function response(res, status, error, additional_message = "") {
+    console.log(`${error.name} (${status}): ${additional_message}`)
+    res.status(status).json({
         code: status,
-        id: id,
-        message: msg
+        id: error.name,
+        message: additional_message
     })
 }
 
@@ -55,7 +52,10 @@ function get_user_by_username(username) {
         console.log("Error [get_user_by_username()]: ", err)
     }).then(result => {
             if (result === undefined) {
-                throw "User Not Found"
+                throw new errors.UserNotFound("")
+            }
+            if (result === null) {
+                throw new errors.TableNotFound("")
             }
             return result
         }
@@ -91,6 +91,9 @@ function authenticate(param) {
     }).catch(err => {
         console.log("Error [authenticate()]: ", err)
     }).then(result => {
+            if (result === null) {
+                throw new errors.TableNotFound("")
+            }
             var is_username_valid = result != undefined
             var is_password_valid = result && result.password === param.password
             return {
@@ -133,6 +136,7 @@ var apis = [
                     }
                     var token = jwt.sign(payload, secret);
                     var data = {
+                        ok: true,
                         id_token: token,
                         access_token: "",
                         message: "hi"
@@ -140,7 +144,9 @@ var apis = [
                     res.json(data);
                     update_expire_date(username)
                 }
-            );
+            ).catch(e => {
+                console.log()
+            })
         }
     },
     {
@@ -151,9 +157,8 @@ var apis = [
             update_expire_date(username).then(result => {
                 console.log("ログアウトしました")
                 res.status(200).json({"message": "ログアウト"});
-            }).catch(e => {                
-                console.log("ユーザが存在しません")
-                res.status(400).json({"message": "ユーザが存在しません"});
+            }).catch(e => {
+                response(res, 400, e, "ユーザが存在しません")
             })
         }
     },
@@ -179,10 +184,19 @@ var apis = [
             }).then(function() {
                 console.log("ユーザを作成しました")
                 res.status(201).json({message: "user creation: success"});
-            }).catch(err => {
-                if (err.name === "SequelizeUniqueConstraintError") {
-                    console.log("ユーザが存在します")
-                    res.status(409).json({error: "User Creation Failed", message: "user already exists"});
+            }).catch(e => {
+                switch (e.name) {
+                    case "SequelizeUniqueConstraintError":
+                        response(res, 409, errors.UserAlreadyExists, "ユーザがすでに存在します")
+                        break
+                    case "SequelizeValidationError":
+                        let invalid_fields = e.errors.map(v => v.path)
+                        let fields_text = invalid_fields.join(", ")
+                    
+                        response(res, 409, errors.InvalidEmail, fields_text + "が不正です")
+                        break
+                    default:
+                        response(res, 400, e)
                 }
             })
         }
@@ -195,9 +209,8 @@ var apis = [
             delete_user(username).then(function(result) {
                 console.log("ユーザを削除しました")
                 res.status(200).json({message: "User Deletion: success"})
-            }).catch(e => {                
-                console.log("ユーザが存在しません")
-                res.status(400).json({"message": "ユーザが存在しません"});
+            }).catch(e => {
+                response(res, 400, e, "ユーザが存在しません")
             })
         }
     },
@@ -218,13 +231,17 @@ var apis = [
     },
     {
         // 自分取得
-        method: "get", url: "/me", auth: false,
+        method: "get", url: "/me", auth: true,
         func: function (req, res) {
             get_user_by_username(req.user.username).then(result => {
                 console.log(result);
-                res.json({result});
+                res.status(200).json({
+                    username: result.username,
+                    email: result.email
+                });
             }).catch(e => {
-
+                console.log(e)
+                response(res, 400, err)
             })
         }
     },
@@ -241,7 +258,7 @@ var apis = [
 function errorHandler(err, req, res, next) {
     if (err.name === 'UnauthorizedError') {
         var innerError = err.inner && err.inner.name;
-        res.status(401).json({error: err.name, message: innerError});
+        response(res, 401, err, innerError)
     }
 }
 function isRevoked(req, payload, done) {
@@ -252,7 +269,7 @@ function isRevoked(req, payload, done) {
         let is_revoked = created_date < expire_date
         done(null, is_revoked)
     }).catch(e => {
-        console.log("error occured")
+        console.log("an error occured")
         done(null, true)
     })
 }

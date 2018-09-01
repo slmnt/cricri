@@ -23,9 +23,11 @@ import MyPage from './components/MyPage';
 
 import wallpaper from './wallpaper-cooperating.jpg';
 
-import { loginUser, logoutUser, test } from './actions'
+import { loginUser, logoutUser, getMyInfo, test } from './actions'
 import api from './utils/api';
-import err from './utils/errors';
+import errors from './utils/errors';
+
+import store from './store';
 
 const styles = {
   wp: {
@@ -103,14 +105,8 @@ class App extends Component {
     this.onClick = this.onClick.bind(this);
   }
   componentDidMount() {
-    this.props.dispatch(test())
-    api.getMyInfo().then(result => console.log(result))
-      .catch(e => {
-        console.log(e)
-        if (err.NoToken.is(e)) {
-          console.log("トークンがありませｎ")
-        }
-      })
+    // this.props.dispatch(test())
+    getMyInfo()(this.props.dispatch)
   }
   onClick(e) {
     this.setState(prevState => ({
@@ -132,7 +128,9 @@ class App extends Component {
   }
   handleClickTest(e) {
     //this.props.dispatch(fetchSecretQuote());
-    api.testSession().then(response => console.log(response.body));
+    //api.testSession().then(response => console.log(response.body));
+    getMyInfo()(this.props.dispatch)
+    console.log(store.getState())
   }
   handleClickDelete(e) {
     //this.props.dispatch(fetchSecretQuote());

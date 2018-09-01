@@ -18,6 +18,9 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 
 import logo from '../logo.png';
 
+import store from '../store';
+
+
 const styles = {
   root: {
   },
@@ -54,12 +57,32 @@ const styles = {
   }
 };
 
-class MenuAppBar extends React.Component {
+class MobileMenu extends React.Component {
+  state = {
+
+  }
+  constructor() {
+
+  }
+  componentDidMount() {
+
+  }
+  render() {
+    return (
+      <div>
+      </div>
+    )
+  }
+}
+
+class Navbar extends React.Component {
   state = {
     auth: true,
     anchorEl: null,
   };
-
+  componentDidMount() {
+    
+  }
   handleChange = (event, checked) => {
     this.setState({ auth: checked });
   };
@@ -109,8 +132,8 @@ class MenuAppBar extends React.Component {
   }
 }
 
-MenuAppBar.propTypes = {
+Navbar.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(MenuAppBar);
+export default withStyles(styles)(Navbar);
