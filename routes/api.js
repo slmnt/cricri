@@ -22,7 +22,7 @@ var expiresIn = 300; //604800; // トークンの有効時間 (秒)  一週間�
 
 // 応答
 var messages = {
-    
+
 }
 function response(res, status, error, additional_message = "") {
     console.log(`${error.name} (${status}): ${additional_message}`)
@@ -209,7 +209,7 @@ var apis = [
                         access_token: "",
                         message: "hi"
                     };
-                    
+
                     // expire 更新
                     var token_obj = jwt.decode(token)
                     var new_expire = getDateFromUnixtime(parseInt(token_obj.iat, 10))
@@ -268,7 +268,7 @@ var apis = [
                     case "SequelizeValidationError":
                         let invalid_fields = e.errors.map(v => v.path)
                         let fields_text = invalid_fields.join(", ")
-                    
+
                         response(res, 409, errors.InvalidEmail, fields_text + "が不正です")
                         break
                     default:
@@ -356,7 +356,7 @@ var apis = [
         }
     },
     {
-        // プロジェクト検索 
+        // プロジェクト検索
         method: "get", url: "/projects", auth: false,
         func: function (req, res) {
             var {query} = url.parse(req.url, true)
@@ -389,6 +389,32 @@ var apis = [
         func: function (req, res) {
             var {email} = req.body;
             //mail
+        }
+    },
+    {
+        // プロジェクトメッセージ（コメント）作成
+        method: "post", url: "/projects/:id/comments", auth: true,
+        func: function (req, res) {
+            var {username} = req.user
+            var {message} = req.body
+            get_user({username}).then(user => {
+                get_project({id: req.params.id}).then(project => {
+                    models.ProjectMsg.create({
+                        message: message,
+                    }).then(projectMsg => {
+                        user.addMsg(projectMsg)
+                        console.log(user)
+                        projectMsg.setOwner(user)
+                        console.log(projectMsg)
+                        project.addMsg(projectMsg)
+                        console.log(project)
+                        projectMsg.setPlace(project)
+                        console.log(projectMsg)
+                    })
+                })
+            }).catch(e => {
+                response(res, 400, e)
+            })
         }
     }
 ]
@@ -426,7 +452,7 @@ router.post("/upload", upload.single('avatar'), function (req, res, next) {
     console.log("file", req.file)
     console.log("body", req.body)
     res.status(200).json({error: "", message: ""});
-})  
+})
 
 router.get('*', function(req, res, next) {
     res.status(404).json({error: "Not Found", message: ""});
