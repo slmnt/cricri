@@ -11,7 +11,7 @@ import classnames from 'classnames';
 
 const styles = {
     root: {
-        backgroundColor: "#2f363f"
+        background: "linear-gradient(0deg, #509cc7, #4d90fe)"
     },
     frame: {
         padding: ""

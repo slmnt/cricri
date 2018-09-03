@@ -1,5 +1,9 @@
+:root {
+  --main-padding: 20px;
+  --mobile-menu-width: 234px;
+}
 body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
-}  
+}

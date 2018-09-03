@@ -3,7 +3,20 @@ import jwt from 'jsonwebtoken';
 import err from './errors';
 
 const https = false
-const BASE_URL = (https && "https" || "http") + '://localhost:3000/api'
+const BASE_URL = (https && "https" || "http") + '://localhost:3000'
+const API_URL = BASE_URL + '/api'
+const STATIC_URL = BASE_URL + '/static'
+
+var misc = {
+  getToken: function () {
+    return localStorage.getItem('id_token') || null
+  },
+  destroyToken: function () {
+    localStorage.removeItem('id_token')
+  }
+}
+
+
 
 function is_token_expired(token) {
   var curr = Math.floor(new Date() / 1000)
@@ -13,7 +26,7 @@ function is_token_expired(token) {
 function callAPI(method, endpoint, authenticated, cfg = {}) {
 
   //let token = localStorage.getItem('access_token') || null
-  let token = localStorage.getItem('id_token') || null
+  let token = misc.getToken()
   let config = cfg;
   config.method = method;
 
@@ -32,13 +45,19 @@ function callAPI(method, endpoint, authenticated, cfg = {}) {
     else {
       console.log("ログインしていません");
       return new Promise(function(resolve, reject) {
-        throw new err.NoToken("")
+        throw new err.NoToken("トークンがありません")
       })
     }
   }
 
-  return fetch(BASE_URL + endpoint, config).then(function(response) {
-    return response.json();
+  return fetch(API_URL + endpoint, config).then(function(response) {
+    console.log(response)
+    return response.json().catch(e => ({ok: false, error: e}))
+  }).then(result => {
+    if (result.ok === false) {
+      throw result
+    }
+    return result
   })
 }
 
@@ -62,7 +81,12 @@ var helper = {
     config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
     config.body = url.format({query: params}).substring(1)
     return config
-  }
+  },
+  withUrlParams: function (origPath, params) {
+    let orgUrl = url.parse(origPath)
+    orgUrl.query = params
+    return url.format(orgUrl)
+  },
 }
 var shorthand = {
   createSession: function (username, password) {
@@ -82,13 +106,30 @@ var shorthand = {
   deleteUser: function () {
     return callAPI("delete", "/users", true);
   },
-  getUser: function () {
-
+  getUser: function (id) {
+    return callAPI("get", "/users/" + id.toString(), false);
   },
   getMyInfo: function () {
     return callAPI("get", "/me", true);
+  },
+  createProject: function(params) {
+    let config = helper.withParams({}, params)
+    return callAPI("post", "/projects", true, config);
+  },
+  deleteProject: function (id) {
+    return callAPI("delete", "/projects/" + id.toString(), true);
+  },
+  getProject: function (id) {
+    return callAPI("get", "/projects/" + id.toString(), false)
+  },
+  getProjectsByUser: function (id) {
+    return callAPI("get", "/users/" + id.toString() + "/projects", false)
+  },
+  searchProjects: function(params) {
+    let path = helper.withUrlParams("/projects", params)
+    return callAPI("get", path, false)
   }
 }
 
 
-export default Object.assign(methods, helper, shorthand);
+export default Object.assign(methods, helper, shorthand, misc);

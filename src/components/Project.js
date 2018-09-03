@@ -13,7 +13,7 @@ import classnames from 'classnames';
 import Loading from './Loading';
 import spinnerImage from '../spinner.jpg';
 
-import {test} from '../actions';
+import api from '../utils/api';
 
 const styles = {
     main: {
@@ -27,53 +27,40 @@ const styles = {
     }
 };
 
-class MyPage extends React.Component {
+class Project extends React.Component {
     state = {
-        username: "",
-        email: "",
-        avatar: "",
-        spinner: true,
+      name: "",
+      desc: "",
+      owner: {}
     };
     componentDidMount() {
-        console.log("MyPage", this.props)
+        console.log("Project", this.props)
         window.scrollTo(0, 0)
+        this.getData()
     }
-    toggle = () => {
-        this.setState(function (prevState, props) {
-            return {spinner: !prevState.spinner}
-        })
-    }
-    test = () => {
-        console.log(this.props.userdata)
+    getData() {
+      const {params} = this.props.match
+      const id = parseInt(params.id, 10)
+      console.log("project", id)
+      api.getProject(id).then(r => {console.log(r)})
     }
     render() {
         const {classes} = this.props;
         return (
           <div className={classes.main}>
             <div>
-              Mypage
-              <Loading enable={this.props.userdata == undefined}>
-                {
-                this.props.userdata &&
-                <div>
-                    username: {this.props.userdata.username}
-                    <br />
-                    email: {this.props.userdata.email}
-                </div>
-                }
-              </Loading>
-              <img className={classes.avatar} src={spinnerImage} />
-              <button onClick={this.test}>aaa</button>
-              <button onClick={this.toggle}>btn</button>
-              <Loading enable={this.state.spinner}>
-               hey
-              </Loading>
+              Project
+              <div>
+                  name: {this.props.name}
+                  <br />
+                  desc: {this.props.descl}
+              </div>
             </div>
           </div>
         );
     }
 }
-MyPage.propTypes = {
+Project.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
@@ -88,4 +75,4 @@ function mapStateToProps(state) {
     }
 }
   
-export default connect(mapStateToProps)(withStyles(styles)(MyPage));
+export default connect(mapStateToProps)(withStyles(styles)(Project));

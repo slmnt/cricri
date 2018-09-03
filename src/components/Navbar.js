@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Link, NavLink, Redirect } from "react-router-dom";
+import { withRouter } from "react-router-dom";
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -20,6 +22,7 @@ import logo from '../logo.png';
 
 import store from '../store';
 
+import MobileMenu from './MobileMenu';
 
 const styles = {
   root: {
@@ -32,9 +35,14 @@ const styles = {
     height: "20px",
   },
   nav: {
-    padding: "20px",
+    paddingTop: "10px",
+    paddingBottom: "10px",
+    paddingLeft: "20px",
+    paddingRight: "20px",
     display: "flex",
-    alignContent: "center"
+    justifyContent: "flex-start",
+    alignContent: "center",
+    alignItems: "center"
   },
   header: {
     borderBottom: "1px solid rgba(46,62,72,.12)"
@@ -46,34 +54,29 @@ const styles = {
     flex: "0 1 auto"
   },
   navButton: {
+    height: "24px",
     paddingLeft: "10px",
     paddingRight: "10px",
-    color: "#00A6FD"
+    color: "#000000",
+    backgroundColor: "#FFFFFF",
+    border: "0px",
+    "&:hover": {
+      color: "#00A6FD",
+      cursor: "pointer"
+    }
   },
   "@media (max-width: 900px)": {
     menuButton: {
       display: "block",
+    },
+    navButton: {
+      display: "none"
+    },
+    nav: {
+      justifyContent: "center",
     }
   }
 };
-
-class MobileMenu extends React.Component {
-  state = {
-
-  }
-  constructor() {
-
-  }
-  componentDidMount() {
-
-  }
-  render() {
-    return (
-      <div>
-      </div>
-    )
-  }
-}
 
 class Navbar extends React.Component {
   state = {
@@ -81,24 +84,30 @@ class Navbar extends React.Component {
     anchorEl: null,
   };
   componentDidMount() {
-    
   }
-  handleChange = (event, checked) => {
-    this.setState({ auth: checked });
-  };
-
-  handleMenu = event => {
-    this.setState({ anchorEl: event.currentTarget });
-  };
-
-  handleClose = () => {
-    this.setState({ anchorEl: null });
-  };
+  onClickMenuButton = (e) => {
+    this.toggleMobileMenu()
+  }
+  toggleMobileMenu = () => {
+    if (this.state.showMobileMenu) {
+      this.closeMobileMenu()
+    } else {
+      this.openMobileMenu()
+    }
+  }
+  openMobileMenu = () => {
+    this.setState({showMobileMenu: true})
+  }
+  closeMobileMenu = () => {
+    this.setState({showMobileMenu: false})
+  }
+  setLocation = path => () => {
+    this.props.history.push(path);
+  }
 
   render() {
     const { classes } = this.props;
-    const { auth, anchorEl } = this.state;
-    const open = Boolean(anchorEl);
+    const { loggedIn, username } = this.state;
 
     return (
       <header className={classes.header}>
@@ -109,23 +118,26 @@ class Navbar extends React.Component {
           <div className={classes.logo}>
             <input/>
           </div>
-          <div className={classes.navButton}>
+          <div className={classes.navButton} onClick={this.setLocation('/explore')}>
             探す
           </div>
-          <div className={classes.navButton}>
+          <div className={classes.navButton} onClick={this.setLocation('/explore')}>
             探す
           </div>
-          <div className={classes.navButton}>
-            ログイン
-          </div>
-          <div className={classes.navButton}>
-            <Link to="/mypage">
+          {
+            this.props.isAuthenticated &&
+            <div className={classes.navButton} onClick={this.setLocation('/mypage')}>
               <AccountCircle className={classes.logo}/>
-            </Link>
-          </div>
-          <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
+            </div>
+            ||
+            <div className={classes.navButton} onClick={this.setLocation('/signin')}>
+              ログイン
+            </div>
+          }
+          <IconButton className={classes.menuButton} onClick={this.onClickMenuButton} color="inherit" aria-label="Menu">
             <MenuIcon />
           </IconButton>
+          {this.state.showMobileMenu && <MobileMenu closeMobileMenu={this.closeMobileMenu}/>}
         </nav>
       </header>
     );
@@ -136,4 +148,16 @@ Navbar.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Navbar);
+function mapStateToProps(state) {
+
+  const { auth, retrieve } = state
+  const { isAuthenticated, errorMessage } = auth
+
+  return {
+      isAuthenticated,
+      userdata: retrieve && retrieve.userdata
+  }
+}
+
+
+export default connect(mapStateToProps)(withRouter(withStyles(styles)(Navbar)));

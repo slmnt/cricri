@@ -45,18 +45,20 @@ function retrieve(state = {}, action) {
     case STORE_MY_DATA:
       return Object.assign({}, state, {
         hey: true,
-        userData: action.data
+        userdata: action.data
       })
     default:
       return state
   }
 }
 
-function test(state = {}, action) {
+function test(state = {test: false}, action) {
   switch (action.type) {
     case TEST:
       console.log("dispatch: test")
-      return state
+      return Object.assign({}, state, {
+        test: true
+      })
     default:
       return state
   }

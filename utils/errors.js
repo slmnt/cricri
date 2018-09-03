@@ -16,7 +16,7 @@ function customError(name) {
   NewError.prototype.constructor = NewError;
   NewError.errorName = name;
   NewError.is = function(err) {
-    return err.name == name;
+    return (err.errorName || err.name) == name;
   }
   return NewError;
 }
@@ -25,6 +25,8 @@ var errors = {
   TableNotFound: true,
   UserNotFound: true,
   UserAlreadyExists: true,
+  ProjectNotFound: true,
+  ProjectAlreadyExists: true,
   InvalidEmail: true
 }
 for (var err of Object.keys(errors)) {

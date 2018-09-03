@@ -28,6 +28,7 @@ cricri®
 + src/: react
   + actions/: redux
   + components/: react
+  + containers/: redux
   + config/: react
   + reducers/: redux
   + store/: redux

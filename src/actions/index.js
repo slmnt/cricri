@@ -18,6 +18,7 @@ export const QUOTE_FAILURE = 'QUOTE_FAILURE'
 export const STORE_MY_DATA = 'STORE_MY_DATA'
 
 
+// acction creators
 export function test() {
   return {
     type: TEST
@@ -75,6 +76,7 @@ function storeMyData(data) {
 }
 
 
+// bound action creators
 export function logoutUser() {
     return dispatch => {
       
@@ -111,7 +113,7 @@ export function loginUser(creds) {
 
           window.location.reload()
         }
-      }).catch(err => console.log("Error: ", err))
+      })
     }
 }
 
@@ -119,17 +121,9 @@ export function getMyInfo() {
 
   return dispatch => {
     return api.getMyInfo().then(result => {
-      let data = {
-        username: result.username,
-        email: result.email
-      }
+      let data = result
       console.log(result)
       dispatch(storeMyData(data))
-    }).catch(e => {
-      console.log(e)
-      if (errors.NoToken.is(e)) {
-        console.log("トークンがありませｎ")
-      }
     })
   }
 }

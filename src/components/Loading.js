@@ -22,7 +22,7 @@ const styles = {
     }
 };
 
-class _Spinner extends React.Component {
+class Spinner extends React.Component {
   state = {
   };
   render() {
@@ -32,11 +32,11 @@ class _Spinner extends React.Component {
       );
   }
 }
-_Spinner.propTypes = {
+Spinner.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-var Spinner = withStyles(styles)(_Spinner);
+Spinner = withStyles(styles)(Spinner);
 
 class Loading extends React.Component {
     state = {

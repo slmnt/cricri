@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Project.associate = function(models) {
-    //models.Project.hasMany(models.Task);
+    models.Project.belongsTo(models.User, {as: 'Owner'});
+    models.Project.belongsToMany(models.User, {as: 'Members', through: 'UserProject'});
   };
 
   return Project;

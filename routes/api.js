@@ -3,6 +3,7 @@ var router = express.Router();
 var ejwt = require('express-jwt');
 var jwt = require('jsonwebtoken');
 var Sequelize = require('sequelize');
+var url = require('url');
 
 var models  = require('../models');
 var secret = require('../config/secret').secret;
@@ -13,7 +14,7 @@ const hash = crypto.createHash('sha512');
 import errors from '../utils/errors'
 var mail = require('../utils/mail');
 
-var expiresIn = 10; //604800; // 秒, 一週間？
+var expiresIn = 300; //604800; // トークンの有効時間 (秒)  一週間ほど？
 
 // 応答
 var messages = {
@@ -22,6 +23,7 @@ var messages = {
 function response(res, status, error, additional_message = "") {
     console.log(`${error.name} (${status}): ${additional_message}`)
     res.status(status).json({
+        ok: false,
         code: status,
         id: error.name,
         message: additional_message
@@ -43,13 +45,11 @@ function is_expired(iat) {
     return false;
 }
 
-function get_user_by_username(username) {
+function get_user(param) {
     return models.User.findOne({
-        where: {
-            username: username
-        }
+        where: param
     }).catch(err => {
-        console.log("Error [get_user_by_username()]: ", err)
+        console.log("Error [get_user()]: ", param, err)
     }).then(result => {
             if (result === undefined) {
                 throw new errors.UserNotFound("")
@@ -61,16 +61,80 @@ function get_user_by_username(username) {
         }
     )
 }
+function project_to_object(p) {
+    return {
+        id: p.id,
+        name: p.name,
+        desc: p.desc,
+        owner: {
+            id: p.getOwner().id,
+            name: p.getOwner().name,
+            avatar: p.getOwner().avatar
+        }
+    }
+}
+function get_project(param) {
+    return models.Project.findOne({
+        where: param
+    }).catch(err => {
+        console.log("Error [get_project()]: ", param, err)
+    }).then(result => {
+            if (result === undefined) {
+                throw new errors.ProjectNotFound("")
+            }
+            if (result === null) {
+                throw new errors.TableNotFound("")
+            }
+            return project_to_object(result)
+        }
+    )
+}
+
+function search_project(query) {
+    var {q, s, p, l} = query // query, sort, page, limit
+    p = p && parseInt(p)
+    l = l && parseInt(l) || 10 // デフォルトで 10
+    var param = {
+        where: {
+            $or: [
+                { 'name': { like: '%' + q + '%' } },
+            ]
+        }
+    }
+    if (p && l) {
+        param.offset = (p - 1) * l
+    }
+    if (l) {
+        param.limit = l
+    }
+    if (s) {
+        param.order = [
+            [s, 'DESC'],
+        ]
+    }
+    return models.Project.findAll(param)
+    .catch(err => {
+        console.log("Error [get_project()]: ", err)
+    }).then(result => {
+            if (result === undefined) {
+                throw new errors.ProjectNotFound("")
+            }
+            if (result === null) {
+                throw new errors.TableNotFound("")
+            }
+            return result.map(p => project_to_object(p))
+        }
+    )
+}
+
 function update_expire_date(username, date = new Date()) {
-    return get_user_by_username(username).then(result => {
+    return get_user({username}).then(result => {
         return result.update("expire", new Date())
-            .catch(err => console.log(err))
     })
 }
 function delete_user(username) {
-    return get_user_by_username(username).then(result => {
+    return get_user({username}).then(result => {
         return result.update("deleted", true)
-            .catch(err => console.log(err))
     })
 }
 function get_exp(username) {
@@ -141,11 +205,19 @@ var apis = [
                         access_token: "",
                         message: "hi"
                     };
+                    
+                    // expire 更新
+                    var token_obj = jwt.decode(token)
+                    var new_expire = getDateFromUnixtime(parseInt(token_obj.iat, 10))
+                    console.log(new_expire)
+                    update_expire_date(username, new_expire)
+                    console.log("auth success")
+
+                    //
                     res.json(data);
-                    update_expire_date(username)
                 }
             ).catch(e => {
-                console.log()
+                response(res, 400, e)
             })
         }
     },
@@ -203,7 +275,7 @@ var apis = [
     },
     {
         // ユーザ削除
-        method: "delete", url: "/users/:id", auth: true,
+        method: "delete", url: "/users", auth: true,
         func: function (req, res) {
             let {username} = req.user;
             delete_user(username).then(function(result) {
@@ -218,30 +290,92 @@ var apis = [
         // ユーザ取得
         method: "get", url: "/users/:id", auth: false,
         func: function (req, res) {
-            var {username, password} = req.user;
-            models.User.findAll({
-                where: {
-                    id: req.params.id
-                }
-            }).then(result => {
+            get_user({id: req.params.id})
+            .then(result => {
                 console.log(result);
                 res.send(result);
-            });
+            }).catch(e => {
+                response(res, 400, e)
+            })
         }
     },
     {
-        // 自分取得
+        // 自分の情報を取得
         method: "get", url: "/me", auth: true,
         func: function (req, res) {
-            get_user_by_username(req.user.username).then(result => {
-                console.log(result);
+            get_user({username: req.user.username}).then(result => {
                 res.status(200).json({
+                    id: result.id,
                     username: result.username,
-                    email: result.email
+                    email: result.email,
+                    avatar: result.avatar
                 });
             }).catch(e => {
                 console.log(e)
-                response(res, 400, err)
+                response(res, 400, e)
+            })
+        }
+    },
+    {
+        // ユーザのプロジェクト取得
+        method: "get", url: "/users/:id/projects/", auth: false,
+        func: function (req, res) {
+            get_user({id: req.params.id})
+            .then(result => {
+                result.getProjects().then(function (projects) {
+                    res.json(projects)
+                })
+            }).catch(e => {
+                response(res, 400, e)
+            })
+        }
+    },
+    {
+        // プロジェクト作成
+        method: "post", url: "/projects", auth: true,
+        func: function (req, res) {
+            var {username} = req.user
+            var {name, desc} = req.body
+            get_user({username}).then(user => {
+                models.Project.create({
+                    name: name,
+                    desc: desc,
+                }).then(project => {
+                    user.addProject(project)
+                    console.log(user)
+                    project.setOwner(user)
+                    res.json(project)
+                })
+            }).catch(e => {
+                response(res, 400, e)
+            })
+        }
+    },
+    {
+        // プロジェクト検索 
+        method: "get", url: "/projects", auth: false,
+        func: function (req, res) {
+            var {query} = url.parse(req.url, true)
+            console.log("/projects")
+            search_project(query).then(result => {
+                console.log(result);
+                res.send(result);
+            }).catch(e => {
+                console.log(e)
+                response(res, 400, e)
+            })
+        }
+    },
+    {
+        // プロジェクト取得
+        method: "get", url: "/projects/:id", auth: false,
+        func: function (req, res) {
+            console.log("/projects/:id", req.params.id)
+            get_project({id: req.params.id}).then(result => {
+                console.log(result);
+                res.send(result);
+            }).catch(e => {
+                response(res, 400, e)
             })
         }
     },
@@ -264,9 +398,12 @@ function errorHandler(err, req, res, next) {
 function isRevoked(req, payload, done) {
     let username = payload.username
     let created_date = payload.iat
-    get_user_by_username(username).then(result => {
+    get_user({username}).then(result => {
         let expire_date = getUnixtime(result.get("expire"))
         let is_revoked = created_date < expire_date
+        if (is_revoked) {
+            console.log("token expired: exp(", expire_date, "), created(", created_date, ")")
+        }
         done(null, is_revoked)
     }).catch(e => {
         console.log("an error occured")

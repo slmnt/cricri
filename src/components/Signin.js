@@ -13,7 +13,19 @@ const styles = {
     main: {
         paddingRight: "20px",
         paddingLeft: "20px",
-    }
+    },
+    overlay: {
+        position: "fixed",
+        display: "block",
+        width: "100%",
+        height: "100%",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(255,255,255,0.8)",
+        zIndex: 2,
+    },
 };
 
 class Signin extends React.Component {
@@ -22,10 +34,13 @@ class Signin extends React.Component {
     componentDidMount() {
         window.scrollTo(0, 0)
     }
+    onClick = () => {
+        this.props.close()
+    }
     render() {
         const {classes} = this.props;
         return (
-          <div className={classes.main}>
+          <div className={classes.overlay} onClick={this.onClick}>
             <div>
             Signin
             </div>

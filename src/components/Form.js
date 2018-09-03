@@ -9,6 +9,11 @@ import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 
+import store from '../store';
+
+import { loginUser, logoutUser, getMyInfo, test } from '../actions'
+
+
 const styles = {
     root: {
       flexGrow: 1,
@@ -31,12 +36,22 @@ const styles = {
 
 class Form extends React.Component {
     state = {
+        username: "",
+        password: ""
     };
     onClickSignin = () => {
-        
+        const creds = { username: this.state.username, password: this.state.password }
+        //this.props.onLoginClick(creds)
+        loginUser(creds)(store.dispatch)
+        console.log(creds)    
     }
     onClickSignup = () => {
         this.props.history.push('/signup');
+    }
+    handleChange = name => {
+        return event => {
+            this.setState({[name]: event.target.value});
+        }
     }
     render() {
         const {classes} = this.props;
@@ -56,8 +71,8 @@ class Form extends React.Component {
                                 id="username"
                                 label="ユーザ名"
                                 className={classes.textField}
-                                //value={this.state.name}
-                                //onChange={this.handleChange('name')}
+                                value={this.state.username}
+                                onChange={this.handleChange('username')}
                                 margin="normal"
                             />
                             <TextField
@@ -65,8 +80,8 @@ class Form extends React.Component {
                                 id="password"
                                 label="パスワード"
                                 className={classes.textField}
-                                //value={this.state.name}
-                                //onChange={this.handleChange('name')}
+                                value={this.state.password}
+                                onChange={this.handleChange('password')}
                                 margin="normal"
                             />
                             </div>

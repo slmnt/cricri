@@ -16,7 +16,7 @@ function customError(name) {
   NewError.prototype.constructor = NewError;
   NewError.errorName = name;
   NewError.is = function(err) {
-    return err.name == name;
+    return err.name === name;
   }
   return NewError;
 }

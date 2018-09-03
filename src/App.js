@@ -20,6 +20,9 @@ import NotFound from './components/NotFound';
 import Signup from './components/Signup';
 import Signin from './components/Signin';
 import MyPage from './components/MyPage';
+import Explore from './components/Explore';
+import Project from './components/Project';
+import User from './components/User';
 
 import wallpaper from './wallpaper-cooperating.jpg';
 
@@ -28,6 +31,8 @@ import api from './utils/api';
 import errors from './utils/errors';
 
 import store from './store';
+
+const page_reload_in = 5000
 
 const styles = {
   wp: {
@@ -53,6 +58,18 @@ const styles = {
     maxWidth: "100%",
     marginTop: "200px"
   },
+  overlay: {
+    position: "fixed",
+    display: "block",
+    width: "100%",
+    height: "100%",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255,255,255,0.8)",
+    zIndex: 2,
+  },
   '@media (max-width: 900px)': {
     form: {
       width: "100vw",
@@ -62,16 +79,7 @@ const styles = {
 };
 
 
-class Explore extends Component {
-  state = {};
-  render() {
-    return (
-      <div>
-        <div>hey wassup</div>
-      </div>
-    );
-  }
-}
+
 class Other extends Component {
   state = {};
   render() {
@@ -82,10 +90,10 @@ class Other extends Component {
           <Switch>
             <Route exact path='/privacy' component={Privacy} />
             <Route exact path='/tos' component={Tos} />
-            <Route exact path='/signup' component={Signup} />
-            <Route exact path='/signin' component={Signin} />
-            <Route exact path='/mypage' component={MyPage} />
-            <Route component={Explore} />
+            <Route exact path='/mypage' render={props => <User me={true} {...props} />} />
+            <Route exact path='/explore' component={Explore} />
+            <Route exact path='/projects/:id' component={Project} />
+            <Route exact path='/users/:id' component={User} />
             <Route component={NotFound} />
           </Switch>
         </main>
@@ -106,7 +114,26 @@ class App extends Component {
   }
   componentDidMount() {
     // this.props.dispatch(test())
-    getMyInfo()(this.props.dispatch)
+    this.setState((prev, state) => {
+      return {
+        tokenExpired: false
+      }
+    })
+    if (api.getToken()) {
+      getMyInfo()(this.props.dispatch).catch(e => {
+        if (errors.TokenExpired.is(e)) {
+          this.setState({ tokenExpired: true })
+          api.destroyToken()
+          window.setTimeout(this.resetPath, page_reload_in);
+        } else if (errors.NoToken.is(e)) {
+
+        }
+      })
+    }
+  }
+  resetPath = () => {
+    this.props.history.push("/")
+    window.location.reload()
   }
   onClick(e) {
     this.setState(prevState => ({
@@ -128,13 +155,13 @@ class App extends Component {
   }
   handleClickTest(e) {
     //this.props.dispatch(fetchSecretQuote());
-    //api.testSession().then(response => console.log(response.body));
+    //api.testSession().then(response => console.log(response));
     getMyInfo()(this.props.dispatch)
     console.log(store.getState())
   }
   handleClickDelete(e) {
     //this.props.dispatch(fetchSecretQuote());
-    api.deleteUser().then(response => console.log(response.body));
+    api.deleteUser().then(response => console.log(response));
   }
   handleClickCreate(e) {
     const username = this.refs.username
@@ -146,10 +173,33 @@ class App extends Component {
       email: email.value.trim()
     }
 
-    api.createUser(config).then(response => console.log(response.body));
+    api.createUser(config).then(response => console.log(response));
   }
-  handleClickMail(e) {
-    // メール送信
+  handleClickSend(e) {
+    var method = this.refs.method.value.trim()
+    var path = this.refs.path.value.trim()
+    var body = this.refs.body.value.trim()
+    var auth = this.refs.auth.value.trim() == "1"
+    var config = body != "" && api.withParams({}, JSON.parse(body)) || {}
+    api[method](path, auth, config).then(result => {
+      console.log(result)
+    })
+  }
+  handleClickSearch(e) {
+    api.searchProjects({a: 213, b: 2122}).then(response => console.log(response));
+  }
+  handleClickCreateProject(e) {
+    const name = this.refs.projname.value.trim()
+    const desc = this.refs.projdesc.value.trim()
+    const config = {
+      name, desc
+    }
+
+    api.createProject(config).then(response => console.log(response));
+  }
+  handleClickGetProjects(e) {
+    console.log(this.props)
+    api.getProjectsByUser(this.props.userdata.id).then(response => console.log(response));
   }
   render() {
     const {classes} = this.props;
@@ -160,6 +210,18 @@ class App extends Component {
           <Route component={Other} />
         </Switch>
         <Footer />
+        {
+          this.state.tokenExpired &&
+          <div className={classes.overlay}>
+            <div style={{fontSize: "15vw", color: "#000000"}}>
+              セッションが切れました
+            </div>
+            <div style={{fontSize: "1vw", color: "#000000"}}>
+              {page_reload_in / 1000}秒後にページを更新します
+            </div>
+          </div>
+        }
+
         <input type='text' ref='username' />
         <input type='password' ref='password' />
         <input type='text' ref='email' />
@@ -178,9 +240,26 @@ class App extends Component {
         <button onClick={(event) => this.handleClickTest(event)}>
           Test
         </button>
-        <button onClick={(event) => this.handleClickMail(event)}>
-          Mail
+        <button onClick={(event) => this.handleClickSearch(event)}>
+          search
         </button>
+        method: <input ref="method" />
+        path: <input ref="path" />
+        body: <textarea ref="body"/>
+        auth: <textarea ref="auth"/>
+        <button onClick={(event) => this.handleClickSend(event)}>
+          send
+        </button>
+        <div>
+          name: <input ref="projname" />
+          desc: <input ref="projdesc" />
+          <button onClick={(event) => this.handleClickCreateProject(event)}>
+            create proj
+          </button>
+          <button onClick={(event) => this.handleClickGetProjects(event)}>
+            get proj
+          </button>
+        </div>
       </div>
     );
   }
@@ -198,12 +277,13 @@ App.propTypes = {
 
 function mapStateToProps(state) {
 
-  const { auth } = state
+  const { auth, retrieve } = state
   const { isAuthenticated, errorMessage } = auth
 
   return {
     isAuthenticated,
-    errorMessage
+    errorMessage,
+    userdata: isAuthenticated && retrieve.userdata || undefined
   }
 }
 
