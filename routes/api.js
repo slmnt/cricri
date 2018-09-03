@@ -393,12 +393,12 @@ var apis = [
     },
     {
         // プロジェクトメッセージ（コメント）作成
-        method: "post", url: "/projects/:projectId/comment", auth: true,
+        method: "post", url: "/projects/:id/comments", auth: true,
         func: function (req, res) {
             var {username} = req.user
-            var {message, projectId} = req.body
+            var {message} = req.body
             get_user({username}).then(user => {
-                get_project({id:projectId}).then(project => {
+                get_project({id: req.params.id}).then(project => {
                     models.ProjectMsg.create({
                         message: message,
                     }).then(projectMsg => {
