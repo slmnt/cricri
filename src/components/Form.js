@@ -62,7 +62,7 @@ class Form extends React.Component {
                     <Grid container spacing={24} direction="row" justify="center">
                         <Grid item xs={12}>
                             <Typography variant="headline" component="h2" style={{textAlign: "center"}}>
-                                あどぃあどいあｗじお
+                                    ログイン
                             </Typography>
                         </Grid>
                         <Grid item xs={12}>

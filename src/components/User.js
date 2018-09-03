@@ -90,6 +90,10 @@ class User extends React.Component {
             <div className={classes.basics}>
               <div className={classes.avatar}>
                 <img src={spinnerImage} />
+                <form action="/api/upload" method="post" enctype="multipart/form-data">
+                  <input type="file" name="avatar" />
+                  <input type="submit" value="Save"></input>
+                </form>
               </div>
               <div>
                 <div className={classes.name}>

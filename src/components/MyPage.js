@@ -53,10 +53,7 @@ class MyPage extends React.Component {
           <div className={classes.main}>
             <div>
               Mypage
-              <form action="/api/upload" method="post" enctype="multipart/form-data">
-                <input type="file" name="avatar" />
-                <input type="submit" value="Save"></input>
-              </form>
+
               <Loading enable={this.props.userdata == undefined}>
                 {
                 this.props.userdata &&

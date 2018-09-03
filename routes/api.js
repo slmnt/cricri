@@ -425,6 +425,7 @@ for (var a of apis) {
 router.post("/upload", upload.single('avatar'), function (req, res, next) {
     console.log("file", req.file)
     console.log("body", req.body)
+    res.status(200).json({error: "", message: ""});
 })  
 
 router.get('*', function(req, res, next) {
