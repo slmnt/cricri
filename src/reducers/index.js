@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux'
 import {
-  TEST, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_SUCCESS, QUOTE_REQUEST, STORE_MY_DATA
+  TEST, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_SUCCESS, QUOTE_REQUEST, STORE_MY_DATA, OPEN_SIGNIN, OPEN_SIGNUP, CLOSE_SIGNIN, CLOSE_SIGNUP
 } from '../actions'
 
 function auth(state = {
@@ -52,6 +52,29 @@ function retrieve(state = {}, action) {
   }
 }
 
+function modal(state = {signin: false, signup: false}, action) {
+  switch (action.type) {
+    case OPEN_SIGNIN:
+      return Object.assign({}, state, {
+        signin: true
+      })
+    case OPEN_SIGNUP:
+      return Object.assign({}, state, {
+        signup: true
+      })
+    case CLOSE_SIGNIN:
+      return Object.assign({}, state, {
+        signin: false
+      })
+    case CLOSE_SIGNUP:
+      return Object.assign({}, state, {
+        signup: false
+      })
+    default:
+      return state
+  }
+}
+
 function test(state = {test: false}, action) {
   switch (action.type) {
     case TEST:
@@ -64,4 +87,4 @@ function test(state = {test: false}, action) {
   }
 }
 
-export default combineReducers({auth, retrieve, test})
+export default combineReducers({auth, retrieve, modal, test})

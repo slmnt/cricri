@@ -17,11 +17,37 @@ export const QUOTE_FAILURE = 'QUOTE_FAILURE'
 
 export const STORE_MY_DATA = 'STORE_MY_DATA'
 
+export const OPEN_SIGNIN = 'OPEN_SIGNIN'
+export const OPEN_SIGNUP = 'OPEN_SIGNUP'
+export const CLOSE_SIGNIN = 'CLOSE_SIGNIN'
+export const CLOSE_SIGNUP = 'CLOSE_SIGNUP'
+
 
 // acction creators
 export function test() {
   return {
     type: TEST
+  }
+}
+
+export function openSignin() {
+  return {
+    type: OPEN_SIGNIN
+  }
+}
+export function closeSignin() {
+  return {
+    type: CLOSE_SIGNIN
+  }
+}
+export function openSignup() {
+  return {
+    type: OPEN_SIGNUP
+  }
+}
+export function closeSignup() {
+  return {
+    type: CLOSE_SIGNUP
   }
 }
 

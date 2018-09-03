@@ -20,7 +20,9 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 
 import logo from '../logo.png';
 
+import {openSignin, openSignup, closeSignin, closeSignup} from '../actions';
 import store from '../store';
+import {mapStateToProps} from '../utils/misc';
 
 import MobileMenu from './MobileMenu';
 
@@ -104,7 +106,12 @@ class Navbar extends React.Component {
   setLocation = path => () => {
     this.props.history.push(path);
   }
-
+  openSignin = () => {
+    this.props.dispatch(openSignin())
+  }
+  openSignup = () => {
+    this.props.dispatch(openSignup())
+  }
   render() {
     const { classes } = this.props;
     const { loggedIn, username } = this.state;
@@ -130,9 +137,14 @@ class Navbar extends React.Component {
               <AccountCircle className={classes.logo}/>
             </div>
             ||
-            <div className={classes.navButton} onClick={this.setLocation('/signin')}>
-              ログイン
-            </div>
+            <React.Fragment>
+              <div className={classes.navButton} onClick={this.openSignin}>
+                ログイン
+              </div>
+              <div className={classes.navButton} onClick={this.openSignup}>
+                登録
+              </div>
+            </React.Fragment>
           }
           <IconButton className={classes.menuButton} onClick={this.onClickMenuButton} color="inherit" aria-label="Menu">
             <MenuIcon />
@@ -147,17 +159,5 @@ class Navbar extends React.Component {
 Navbar.propTypes = {
   classes: PropTypes.object.isRequired,
 };
-
-function mapStateToProps(state) {
-
-  const { auth, retrieve } = state
-  const { isAuthenticated, errorMessage } = auth
-
-  return {
-      isAuthenticated,
-      userdata: retrieve && retrieve.userdata
-  }
-}
-
 
 export default connect(mapStateToProps)(withRouter(withStyles(styles)(Navbar)));

@@ -7,6 +7,10 @@ var url = require('url');
 
 var models  = require('../models');
 var secret = require('../config/secret').secret;
+var path_cfg  = require('../config/path');
+
+var multer  = require('multer')
+var upload = multer({ dest: path_cfg.upload })
 
 const crypto = require('crypto');
 const hash = crypto.createHash('sha512');
@@ -418,7 +422,10 @@ for (var a of apis) {
     }
 }
 
-
+router.post("/upload", upload.single('avatar'), function (req, res, next) {
+    console.log("file", req.file)
+    console.log("body", req.body)
+})  
 
 router.get('*', function(req, res, next) {
     res.status(404).json({error: "Not Found", message: ""});

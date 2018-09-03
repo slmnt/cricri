@@ -15,6 +15,7 @@ import spinnerImage from '../spinner.jpg';
 
 import {test} from '../actions';
 import api from '../utils/api';
+import {mapStateToProps} from '../utils/misc';
 
 
 const styles = {
@@ -59,7 +60,12 @@ class User extends React.Component {
         console.log("User", this.props)
         window.scrollTo(0, 0)
         if (this.props.me) {
-          console.log("me")
+          this.setState({
+            username: this.props.userdata.username,
+            shortdesc: this.props.userdata.shortDesc,
+            desc: this.props.userdata.desc,
+            avatar: this.props.userdata.avatar,
+          })
         } else {
           this.getData()
         }
@@ -105,15 +111,4 @@ User.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-function mapStateToProps(state) {
-
-    const { auth, retrieve } = state
-    const { isAuthenticated, errorMessage } = auth
-  
-    return {
-        isAuthenticated,
-        userdata: retrieve && retrieve.userdata
-    }
-}
-  
 export default connect(mapStateToProps)(withStyles(styles)(User));

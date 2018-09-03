@@ -10,6 +10,9 @@ var React = require('react');
 var ReactDOMServer = require('react-dom/server');
 // var App = require('../pakuri/src/App');
 
+var path_cfg  = require('./config/path');
+
+
 
 var app = express();
 
@@ -23,7 +26,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'build'))); // public -> build
+app.use(express.static(path.join(__dirname, path_cfg.static))); // public -> build
 
 // router
 app.use('/', Router);

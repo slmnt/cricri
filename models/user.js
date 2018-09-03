@@ -18,9 +18,6 @@ module.exports = (sequelize, DataTypes) => {
     name: {
       type: DataTypes.STRING,
     },
-    avatar: {
-      type: DataTypes.STRING,
-    },
     shortDesc: {
       type: DataTypes.STRING,
     },
@@ -34,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   User.associate = function(models) {
+    models.User.belongsTo(models.Image, {as: 'Avatar'});
     models.User.belongsToMany(models.Project, {as: 'Projects', through: 'UserProject'});
   };
 

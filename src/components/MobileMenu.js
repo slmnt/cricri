@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Link, NavLink, Redirect } from "react-router-dom";
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -18,7 +19,9 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 
 import logo from '../logo.png';
 
+import { loginUser, logoutUser, getMyInfo, openSignin, openSignup, closeSignin, closeSignup, test } from '../actions'
 import store from '../store';
+import {mapStateToProps} from '../utils/misc';
 
 const styles = {
   overlay: {
@@ -55,9 +58,9 @@ const styles = {
   },
   item: {
     width: "100%",
-    height: "20px",
+    height: "70px",
+    lineHeight: "70px",
     flex: "0 0 auto",
-    cursor: "auto",
     textAlign: "center",
     cursor: "pointer",
     backgroundColor: "#FFFFFF",
@@ -90,24 +93,46 @@ class MobileMenu extends React.Component {
   onClickMenu = (e) => {
     e.stopPropagation()
   }
+  goTo = (path) => {
+    return () => {
+      this.props.history.push(path)
+    }
+  }
+  logOut = () => {
+    logoutUser()(this.props.dispatch)
+  }
+  signIn = () => {
+    this.props.dispatch(openSignin())
+  }
+  signup = () => {
+    this.props.dispatch(openSignup())
+  }
   render() {
     const {classes} = this.props
     return (
       <div className={classes.overlay} onClick={this.onClickOverlay}>
         <div className={classes.menu} onClick={this.onClickMenu}>
           <div className={classes.main}>
-            <div className={classes.item}>
+            <div className={classes.item} onClick={this.goTo("/")}>
               ホーム
             </div>
-            <div className={classes.item}>
+            <div className={classes.item} onClick={this.goTo("/explore")}>
               検索
             </div>
-            <div className={classes.item}>
-              ログイン
-            </div>
-            <div className={classes.item}>
-              ログアウト
-            </div>
+            {this.state.isAuthenticated &&
+              <React.Fragment>
+                <div className={classes.item} onClick={this.goTo("/")}>
+                  登録
+                </div>
+                <div className={classes.item} onClick={this.goTo("/")}>
+                  ログイン
+                </div>
+              </React.Fragment>
+              ||
+              <div className={classes.item} onClick={this.logOut}>
+                ログアウト
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -118,4 +143,4 @@ MobileMenu.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(MobileMenu);
+export default connect(mapStateToProps)(withStyles(styles)(MobileMenu));

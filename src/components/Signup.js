@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Link, Switch, NavLink, Redirect } from "react-router-dom";
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
@@ -37,11 +38,14 @@ class Signup extends React.Component {
     onClick = () => {
         this.props.close()
     }
+    onClickMenu = (e) => {
+        e.preventDefault()
+    }
     render() {
         const {classes} = this.props;
         return (
           <div className={classes.overlay} onClick={this.onClick}>
-            <div>
+            <div className={classes.menu} onClick={this.onClickMenu}>
               Signup
             </div>
           </div>
@@ -52,4 +56,4 @@ Signup.propTypes = {
     classes: PropTypes.object.isRequired,
 };
   
-export default withStyles(styles)(Signup);
+export default connect()(withStyles(styles)(Signup));

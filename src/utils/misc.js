@@ -1,11 +1,11 @@
-function getTempPath(url) {
+export function getTempPath(url) {
   if (!url.host || !url.protocol) {
     return "https://localhost" + url.pathname + url.search
   } else {
     return url.href
   }
 }
-function setParams(url, params) {
+export function setParams(url, params) {
   var n = new URL(getTempPath(url))
   const sp = new URLSearchParams(n.searchParams);
   for (var key in params) {
@@ -14,15 +14,22 @@ function setParams(url, params) {
   n.search = sp
   return n
 }
-function getSearchParams(url) {
+export function getSearchParams(url) {
   return new URLSearchParams(new URL(getTempPath(url)).searchParams);
 }
-function getRelativePath(url) {
+export function getRelativePath(url) {
   return url.pathname + url.search
 }
+export function mapStateToProps(state) {
 
-export default {
-  setParams,
-  getSearchParams,
-  getRelativePath,
+  const { auth, retrieve, modal } = state
+  const { isAuthenticated, errorMessage } = auth
+
+  return {
+    isAuthenticated,
+    errorMessage,
+    userdata: isAuthenticated && retrieve.userdata || undefined,
+    signinModal: modal.signin,
+    signupModal: modal.signup,
+  }
 }

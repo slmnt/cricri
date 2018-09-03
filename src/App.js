@@ -24,11 +24,14 @@ import Explore from './components/Explore';
 import Project from './components/Project';
 import User from './components/User';
 
+import RouteFilter from './components/RouteFilter';
+
 import wallpaper from './wallpaper-cooperating.jpg';
 
-import { loginUser, logoutUser, getMyInfo, test } from './actions'
+import { loginUser, logoutUser, getMyInfo, openSignin, openSignup, closeSignin, closeSignup, test } from './actions'
 import api from './utils/api';
 import errors from './utils/errors';
+import {mapStateToProps} from './utils/misc';
 
 import store from './store';
 
@@ -90,8 +93,8 @@ class Other extends Component {
           <Switch>
             <Route exact path='/privacy' component={Privacy} />
             <Route exact path='/tos' component={Tos} />
-            <Route exact path='/mypage' render={props => <User me={true} {...props} />} />
-            <Route exact path='/explore' component={Explore} />
+            <Route exact path='/mypage' component={MyPage} />} />
+            <RouteFilter exact path='/explore' component={Explore} />
             <Route exact path='/projects/:id' component={Project} />
             <Route exact path='/users/:id' component={User} />
             <Route component={NotFound} />
@@ -135,6 +138,12 @@ class App extends Component {
     this.props.history.push("/")
     window.location.reload()
   }
+  closeSignin = () => {
+    this.props.dispatch(closeSignin())
+  }
+  closeSignup = () => {
+    this.props.dispatch(closeSignup())
+  }
   onClick(e) {
     this.setState(prevState => ({
       isToggleOn: !prevState.isToggleOn,
@@ -156,8 +165,9 @@ class App extends Component {
   handleClickTest(e) {
     //this.props.dispatch(fetchSecretQuote());
     //api.testSession().then(response => console.log(response));
-    getMyInfo()(this.props.dispatch)
+    //getMyInfo()(this.props.dispatch)
     console.log(store.getState())
+    console.log(this.state)
   }
   handleClickDelete(e) {
     //this.props.dispatch(fetchSecretQuote());
@@ -221,6 +231,8 @@ class App extends Component {
             </div>
           </div>
         }
+        { this.props.signinModal && <Signin close={this.closeSignin} /> }
+        { this.props.signupModal && <Signup close={this.closeSignup} /> }
 
         <input type='text' ref='username' />
         <input type='password' ref='password' />
@@ -274,18 +286,6 @@ App.propTypes = {
   //isSecretQuote: PropTypes.bool.isRequired
 };
 
-
-function mapStateToProps(state) {
-
-  const { auth, retrieve } = state
-  const { isAuthenticated, errorMessage } = auth
-
-  return {
-    isAuthenticated,
-    errorMessage,
-    userdata: isAuthenticated && retrieve.userdata || undefined
-  }
-}
 
 
 export default withRouter(connect(mapStateToProps)(withStyles(styles)(App)))

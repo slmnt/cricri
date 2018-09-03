@@ -13,6 +13,7 @@ import classnames from 'classnames';
 import Loading from './Loading';
 import spinnerImage from '../spinner.jpg';
 
+import {mapStateToProps} from '../utils/misc';
 import {test} from '../actions';
 
 const styles = {
@@ -52,6 +53,10 @@ class MyPage extends React.Component {
           <div className={classes.main}>
             <div>
               Mypage
+              <form action="/api/upload" method="post" enctype="multipart/form-data">
+                <input type="file" name="avatar" />
+                <input type="submit" value="Save"></input>
+              </form>
               <Loading enable={this.props.userdata == undefined}>
                 {
                 this.props.userdata &&
@@ -77,15 +82,4 @@ MyPage.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-function mapStateToProps(state) {
-
-    const { auth, retrieve } = state
-    const { isAuthenticated, errorMessage } = auth
-  
-    return {
-        isAuthenticated,
-        userdata: retrieve && retrieve.userdata
-    }
-}
-  
 export default connect(mapStateToProps)(withStyles(styles)(MyPage));

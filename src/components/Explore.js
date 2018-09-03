@@ -12,35 +12,74 @@ import classnames from 'classnames';
 import url from 'url';
 
 import api from '../utils/api';
-import misc from '../utils/misc';
+import { setParams, getSearchParams, getRelativePath } from '../utils/misc';
 
 import Loading from './Loading';
 
 const styles = {
+  main: {
+    padding: "20px",
+    paddingTop: "40px",
+    minHeight: "100vh"
+  },
   shadow: {
     boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2)"
+  },
+  center: {
+    display: "flex",
+    flexFlow: "column nowrap",
+    alignItems: "center"
+  },
+  title: {
+    textAlign: "center",
+    fontSize: "25px"
+  },
+  searchBox: {
+    width: "60%",
+    height: "30px",
+    fontSize: "25px",
+    borderRadius: "3px",
+    border: "1px solid #cccccc",
+    outline: "0px",
+    padding: "10px",
+    "&:focus": {
+      outline: "1px solid #4da7fe !important"
+    }
   },
   pagination: {
     display: "flex",
     flexFlow: "row nowrap",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingLeft: "20%",
-    paddingRight: "20%",
+    paddingTop: "20px",
+    paddingBottom: "20px",
+    paddingLeft: "30%",
+    paddingRight: "30%"
   },
   pageButton: {
-    color: "#cccccc",
+    color: "#000000",
     backgroundColor: "#FFFFFF",
     borderRadius: "100%",
     width: "40px",
     height: "40px",
     textAlign: "center",
     lineHeight: "40px",
-    flex: "0 0 auto",
+    flex: "0 1 auto",
     cursor: "auto",
     "&:hover": {
       cursor: "pointer",
       backgroundColor: "#00A6FD"
+    }
+  },
+  pageButtonCurrent: {
+    cursor: "default",
+    backgroundColor: "#606d79"
+  },
+  pageLink: {
+    color: "#000000",
+    "&:hover": {
+      cursor: "pointer",
+      color: "#00A6FD"
     }
   },
   boxContainer: {
@@ -59,12 +98,18 @@ const styles = {
     backgroundColor: "#223833",
     textAlign: "center",
   },
-  title: {
+  boxTitle: {
     fontSize: "30px"
   },
-  desc: {
+  boxDesc: {
     fontSize: "20px",
     color: "#cccccc"
+  },
+  '@media (max-width: 900px)': {
+    pagination: {
+      paddingLeft: "20px",
+      paddingRight: "20px"
+    }
   }
 }
 
@@ -74,10 +119,10 @@ class Box extends React.Component {
     const {classes} = this.props
     return (
       <div className={classNames(classes.box, classes.shadow)}>
-        <div className={classes.title}>
+        <div className={classes.boxTitle}>
           {this.props.title}
         </div>
-        <div className={classes.desc}>
+        <div className={classes.boxDesc}>
           {this.props.desc}
         </div>
         <img src={this.props.img} />
@@ -105,7 +150,7 @@ class PageButton extends React.Component {
   render() {
     const {classes} = this.props
     return (
-      <div className={classNames(classes.pageButton, classes.shadow)} onClick={this.onClick}>
+      <div className={classNames(classes.pageButton, classes.shadow, this.props.isSelected && classes.pageButtonCurrent)} onClick={this.onClick}>
         {this.props.num}
       </div>
     )
@@ -123,12 +168,21 @@ class Explore extends React.Component {
   state = {
     fetching: false,
     pageFrom: 1,
-    pages: [1, 2, 3, 4, 5, 6],
+    pages: [1, 2, 3, 4, 5, 6, 7],
     people: [],
     projects: []
   };
   componentDidMount() {
-    this.update(this.props.history.location.search)
+    this.onRouteChange(this.props.location)
+    this.props.history.listen(this.onRouteChange)
+  }
+  onRouteChange = (location, action) => {
+    var params = url.parse(location.search, true).query
+    if (!this.state.fetching) {
+      let from = Math.max(1, params.p - this.state.pages.length / 2 + 1)
+      this.setState({pageFrom: from || 1})
+    }
+    this.getData(params)
   }
   getData(params) {
     if (this.state.fetching) {
@@ -144,48 +198,49 @@ class Explore extends React.Component {
       this.state.fetching = false
     })
   }
-  onClick = () => {
-
-  }
-  onClickCallback = (path) => {
+  onClickPageBtn = (path) => {
     this.props.history.push(path)
-    this.update(path)
   }
-  update = (path) => {
-    var params = url.parse(path, true).query
-    if (!this.state.fetching) {
-      this.setState({pageFrom: params.p || 1})
+  onKeyPress = (e) => {
+    if (e.key == 'Enter') {
+      this.search(this.refs.search_box.value.trim())
     }
-    this.getData(params)
   }
-  search = () => {
-    var new_url = misc.setParams(this.props.history.location, {p: 1})
-    this.props.history.push(new_url.href)
+  search = (text) => {
+    var path = getRelativePath(setParams(this.props.history.location, {q: text, p: 1}))
+    this.props.history.push(path)
   }
   getLink(num) {
-    var new_url = misc.setParams(this.props.history.location, {p: num})
-    return misc.getRelativePath(new_url)
+    if (num < 1) {
+      num = 1
+    }
+    var new_url = setParams(this.props.history.location, {p: num})
+    return getRelativePath(new_url)
+  }
+  goTo = (num) => {
+    var sp = getSearchParams(this.props.history.location)
+    var path = this.getLink(parseInt(sp.get("p")) + num)
+    this.onClickPageBtn(path)
+  }
+  goToNext = () => {
+    this.goTo(1)
+  }
+  goToPrev = () => {
+    this.goTo(-1)
   }
   isSelected(num) {
-    var sp = misc.getSearchParams(this.props.history.location)
-    console.log(sp.get('p'), num.toString(), sp.get('p') == num.toString())
+    var sp = getSearchParams(this.props.history.location)
     return sp.get('p') == num.toString()
   }
   render() {
     const {classes} = this.props
     return (
-      <div>
-        <input ref="search_box"></input>
-        <button onClick={this.onClick}>s</button>
-        <div>
-          人
-        </div>
-        <div>
-        </div>
-
-        <div>
-          プロジェクト
-          <Link to="/explore?q=a&s=name&p=1&l=3">click</Link>
+      <div className={classes.main}>
+        <div className={classes.center}>
+          <div className={classes.title}>
+            プロジェクトを検索
+          </div>
+          <input onKeyPress={this.onKeyPress} className={classes.searchBox} ref="search_box"></input>
         </div>
         <Loading enable={this.state.projects.length == 0}>
           <div className={classes.boxContainer}>
@@ -193,15 +248,24 @@ class Explore extends React.Component {
               this.state.projects.map(v => <Box id={v.id} title={v.name} desc={v.desc} />)
             }
           </div>
-          <div className={classes.pagination}>
-            {
-            this.state.pages.map(v => {
-              var page = parseInt(this.state.pageFrom) + parseInt(v) - 1
-              return <PageButton key={v} num={page} link={this.getLink(page)} isSelected={this.isSelected(page)} callback={this.onClickCallback} />
-            })
-            }
-          </div>
         </Loading>
+        {this.state.projects.length == 0 &&
+          <div>プロジェクトが見つかりません</div>
+        }
+        <div className={classes.pagination}>
+          <div className={classes.pageLink}>
+            <a onClick={this.goToPrev}>前へ</a>
+          </div>
+          {
+          this.state.pages.map(v => {
+            var page = parseInt(this.state.pageFrom) + parseInt(v) - 1
+            return <PageButton key={v} num={page} link={this.getLink(page)} isSelected={this.isSelected(page)} callback={this.onClickPageBtn} />
+          })
+          }
+          <div className={classes.pageLink}>
+            <a onClick={this.goToNext}>次へ</a>
+          </div>
+        </div>
       </div>
     );
   }
