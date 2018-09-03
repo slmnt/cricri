@@ -29,6 +29,7 @@ const styles = {
     height: "100%",
     paddingRight: "20px",
     paddingLeft: "20px",
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
     display: "flex",
     flexWrap: "wrap",
     justifyContent: "space-around"
@@ -75,14 +76,9 @@ class Welcome extends Component {
         <div className={classes.wp}>
           <div className={classes.topContainer}>
             <div className={classes.topItem}>
-                <p style={{fontSize: "50px", color: "#FFFFFF"}}>
+                <p style={{fontSize: "60px", color: "#FFFFFF"}}>
                   今日はいい天気
                 </p>
-            </div>
-            <div className={classes.topItem}>
-                <div className={classes.form}>
-                  <Form />
-                </div>
             </div>
           </div>
         </div>

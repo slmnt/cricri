@@ -20,13 +20,17 @@ import {mapStateToProps} from '../utils/misc';
 
 const styles = {
     main: {
-        paddingRight: "20px",
-        paddingLeft: "20px",
-        minHeight: "100vh"
+      padding: "20px",
+      paddingTop: "40px",
+      paddingRight: "20px",
+      paddingLeft: "20px",
+      minHeight: "100vh"
     },
     basics: {
       display: "flex",
-      borderBottom: "1px solid #cccccc"
+      justifyContent: "space-around",
+      borderBottom: "1px solid #cccccc",
+      paddingBottom: "40px"
     },
     name: {
       fontSize: "25px",
@@ -37,22 +41,34 @@ const styles = {
       color: "#cccccc"
     },
     avatar: {
-        flex: "1 1 auto",
-        width: 200,
-        height: 200,
-        borderRadius: "10px"
+      flex: "0 0 auto",
+      width: 200,
+      height: 200,
+      borderRadius: "10px"
+    },
+    avatarImage: {
+      width: 150,
+      height: 150,
     },
     desc: {
       fontSize: "20px",
-      color: "#000000"
+      color: "#000000",
+      paddingRight: "20px",
+      paddingLeft: "20px"
+    },
+    flex: {
+      display: "flex",
+      flexFlow: "column nowrap",
+      justifyContent: "center"
     }
 };
 
 class User extends React.Component {
     state = {
-        username: "",
-        shortdesc: "",
-        email: "",
+        username: "Will Willson",
+        shortdesc: "Ph.D in Computer Retardation",
+        desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+        email: "ww@aws",
         avatar: "",
         spinner: true,
     };
@@ -89,13 +105,13 @@ class User extends React.Component {
           <div className={classes.main}>
             <div className={classes.basics}>
               <div className={classes.avatar}>
-                <img src={spinnerImage} />
+                <img className={classes.avatarImage} src={spinnerImage} />
                 <form action="/api/upload" method="post" enctype="multipart/form-data">
                   <input type="file" name="avatar" />
                   <input type="submit" value="Save"></input>
                 </form>
               </div>
-              <div>
+              <div className={classes.flex}>
                 <div className={classes.name}>
                   {this.state.username}
                 </div>
