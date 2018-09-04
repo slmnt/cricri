@@ -101,7 +101,6 @@ function filename_to_path(filename) {
     return "/upload/" + filename
 }
 function user_to_object(u) {
-    console.log(u)
     return u.getAvatar().then(avatar => {
         return {
             id: u.id,
@@ -114,45 +113,51 @@ function user_to_object(u) {
 }
 function project_to_object(p) {
     return p.getOwner().then(owner => {
-        return {
-            id: p.id,
-            name: p.name,
-            desc: p.desc,
-            owner: {
-                id: owner.id,
-                name: owner.name,
-                shortDesc: owner.shortDesc,
-                avatar: owner.avatar,
+        return user_to_object(owner).then(o => {
+            return {
+                id: p.id,
+                name: p.name,
+                desc: p.desc,
+                owner: {
+                    id: o.id,
+                    name: o.name,
+                    shortDesc: o.shortDesc,
+                    avatar: o.avatar,
+                }
             }
-        }
+        })
     })
 }
 function usermsg_to_object(p) {
     return p.getOwner().then(owner => {
-        return {
-            id: p.id,
-            message: p.message,
-            owner: {
-                id: owner.id,
-                name: owner.name,
-                shortDesc: owner.shortDesc,
-                avatar: owner.avatar,
+        return user_to_object(owner).then(o => {
+            return {
+                id: p.id,
+                message: p.message,
+                owner: {
+                    id: o.id,
+                    name: o.name,
+                    shortDesc: o.shortDesc,
+                    avatar: o.avatar,
+                }
             }
-        }
+        })
     })
 }
 function projectmsg_to_object(p) {
     return p.getOwner().then(owner => {
-        return {
-            id: p.id,
-            message: p.message,
-            owner: {
-                id: owner.id,
-                name: owner.name,
-                shortDesc: owner.shortDesc,
-                avatar: owner.avatar,
+        return user_to_object(owner).then(o => {
+            return {
+                id: p.id,
+                message: p.message,
+                owner: {
+                    id: o.id,
+                    name: o.name,
+                    shortDesc: o.shortDesc,
+                    avatar: o.avatar,
+                }
             }
-        }
+        })
     })
 } 
 function get_project(param) {
@@ -681,8 +686,8 @@ var apis = [
             var params = search_query_to_object(query)
             params.id = req.params.id
             get_project(params).then(project => {
-                project.getMembers().then(r => {
-                    res.json(r)
+                return project.getMembers().then(result => {
+                    return promise_all(result, user_to_object).then(r => res.json(r))
                 })
             }).catch(e => {
                 response(res, 400, e)

@@ -54,6 +54,8 @@ const styles = {
     avatarImage: {
       width: 150,
       height: 150,
+      borderRadius: "5px",
+      border: "3px solid #aaaaaa"
     },
     desc: {
       fontSize: "20px",
@@ -191,14 +193,14 @@ class User extends React.Component {
             <div className={classes.basics}>
               <div className={classes.avatar}>
                 <img className={classes.avatarImage} src={this.state.avatar} />
-                { this.isMe() && false
-                  //<form action={this.test} method="post" enctype="multipart/form-data">
-                }
+                { this.isMe() &&
+                  <div>
                   <form ref={this.form} id="myForm" name="myForm">
                     <input type="file" id="avatar" name="avatar" ref="input" />
-                    <input type="submit" id="submit" name="submit" value="Save"></input>
                   </form>
-                  <button onClick={this.test}>btn</button>
+                  <button onClick={this.test}>決定</button>
+                  </div>
+                }
               </div>
               <div className={classes.flex}>
                 <div className={classes.name}>

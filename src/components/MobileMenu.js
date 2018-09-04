@@ -121,6 +121,9 @@ class MobileMenu extends React.Component {
             <div className={classes.item} onClick={this.goTo("/explore")}>
               プロジェクト検索
             </div>
+            <div className={classes.item} onClick={this.goTo("/search")}>
+              ユーザ検索
+            </div>
             {this.props.isAuthenticated &&
               <React.Fragment>
                 <div className={classes.item} onClick={this.goTo("/mypage")}>

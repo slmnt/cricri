@@ -163,6 +163,8 @@ class ProjectCreator extends React.Component {
                   className={classes.textField}
                   value={this.state.desc}
                   onChange={this.handleChange('desc')}
+                  multiline
+                  rows="10"
                   margin="normal"
               />
             </div>

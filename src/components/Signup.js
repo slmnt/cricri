@@ -73,7 +73,10 @@ class Form extends React.Component {
           email: this.state.email
         }
         console.log(config)
-        api.createUser(config).then(response => console.log(response));
+        api.createUser(config).then(response => {
+            console.log(response)
+            loginUser(config)(this.props.dispatch)
+        });
     }
     handleChange = name => {
         return event => {

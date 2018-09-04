@@ -56,18 +56,25 @@ const styles = {
     },
     menu: {
 
+    },
+    error: {
+        color: "#884444",
+        fontSize: "15px"
     }
 };
 
 class Form extends React.Component {
     state = {
+        err_msg: "",
         username: "",
         password: ""
     };
     onClickSignin = () => {
         const creds = { username: this.state.username, password: this.state.password }
         //this.props.onLoginClick(creds)
-        loginUser(creds)(store.dispatch)
+        loginUser(creds)(store.dispatch).catch(e => {
+            this.setState({err_msg: "入力内容にエラーがあります"})
+        })
         console.log(creds)    
     }
     handleChange = name => {
@@ -115,6 +122,9 @@ class Form extends React.Component {
                         </Grid>
                     </Grid>
                     </form>
+                    <div className={classes.error}>
+                        {this.state.err_msg}
+                    </div>
                 </div>
             </Card>
         );
