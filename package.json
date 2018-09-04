@@ -8,6 +8,7 @@
     "dev": "cross-env NODE_ENV=development nodemon ./bin/www --exec babel-node --presets env",
     "dev2": "npm run build && npm run dev",
     "prod": "cross-env NODE_ENV=production babel-node ./bin/www --presets env",
+    "prod2": "npm run build && npm run prod",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",

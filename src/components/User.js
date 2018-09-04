@@ -137,8 +137,8 @@ class User extends React.Component {
         }
         var id = this.state.userdata.id
       } else if (!this.props.me) {
-        const {params} = this.props.match
-        const id = parseInt(params.id, 10)
+        var {params} = this.props.match
+        var id = parseInt(params.id, 10)
         api.getUser(id).then(r => {
           console.log(r)
           this.setState({
@@ -153,6 +153,7 @@ class User extends React.Component {
           this.setState(this.dummy)
         })
       }
+      console.log(params, this.state.userdata)
       api.getUserComments(id).then(r => {
         this.setState({
             comments: r,

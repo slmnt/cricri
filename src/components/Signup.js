@@ -149,7 +149,7 @@ Form.propTypes = {
     classes: PropTypes.object.isRequired,
 };
   
-Form = withRouter(withStyles(styles)(Form));
+Form = connect(withRouter(withStyles(styles)(Form)));
 
 
 
