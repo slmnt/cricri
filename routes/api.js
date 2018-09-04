@@ -108,7 +108,7 @@ function user_to_object(u) {
             name: u.name,
             shortDesc: u.shortDesc,
             desc: u.desc,
-            avatar: filename_to_path(avatar.filename)
+            avatar: avatar && filename_to_path(avatar.filename) || ""
         }
     })
 }

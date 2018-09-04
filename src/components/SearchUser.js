@@ -169,6 +169,9 @@ class SearchUser extends React.Component {
       let from = Math.max(1, params.p - this.state.pages.length / 2 + 1)
       this.setState({pageFrom: from || 1})
     }
+    if (this.refs.search_box) {
+      this.refs.search_box.value = params.q || ""
+    }
     this.getData(params)
   }
   getData(params) {
@@ -178,6 +181,7 @@ class SearchUser extends React.Component {
     this.state.fetching = true
     var {q, s, p, l} = params
     api.searchUsers(params).then(result => {
+      console.log(result)
       this.setState({
         count: result.count,
         users: result.items

@@ -27,7 +27,8 @@ var errors = {
   UserAlreadyExists: true,
   ProjectNotFound: true,
   ProjectAlreadyExists: true,
-  InvalidEmail: true
+  InvalidEmail: true,
+  NotFound: true
 }
 for (var err of Object.keys(errors)) {
   errors[err] = customError(err)

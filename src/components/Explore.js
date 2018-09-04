@@ -194,6 +194,10 @@ class Explore extends React.Component {
       let from = Math.max(1, params.p - this.state.pages.length / 2 + 1)
       this.setState({pageFrom: from || 1})
     }
+    
+    if (this.refs.search_box) {
+      this.refs.search_box.value = params.q || ""
+    }
     this.getData(params)
   }
   getData(params) {

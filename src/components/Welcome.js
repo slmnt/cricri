@@ -23,6 +23,9 @@ import { setParams, getSearchParams, getRelativePath } from '../utils/misc';
 
 
 const styles = {
+  nav: {
+    width: "100%"
+  },
   wp: {
     minHeight: "100vh",
     backgroundPosition: "center",
@@ -31,16 +34,18 @@ const styles = {
     backgroundImage: "url(" + wallpaper + ")",
   },
   topContainer: {
-    height: "100%",
+    height: "100vh",
     paddingRight: "20px",
     paddingLeft: "20px",
     backgroundColor: "rgba(0, 0, 0, 0.2)",
     display: "flex",
     flexWrap: "wrap",
-    justifyContent: "space-around"
+    justifyContent: "center",
+    alignContent: "center",
+    alignItems: "center"
   },
   topItem: {
-    height: "100%"
+    width: "40vw"
   },
   form: {
     width: "400px",
@@ -61,7 +66,7 @@ const styles = {
     color: "#FFFFFF"
   },
   searchBox: {
-    width: "90%",
+    width: "100%",
     height: "30px",
     fontSize: "25px",
     borderRadius: "3px",
@@ -134,7 +139,7 @@ class Welcome extends Component {
     }
   }
   search = (text) => {
-    var path = getRelativePath(setParams("/explore", {q: text, p: 1}))
+    var path = getRelativePath(setParams({pathname: "/explore", search: ""}, {q: text, p: 1}))
     this.props.history.push(path)
   }
   render() {
@@ -142,12 +147,15 @@ class Welcome extends Component {
     return (
       <React.Fragment>
         <Navbar />
+        <div className={classes.nav}>
+
+        </div>
         <div className={classes.wp}>
           <div className={classes.topContainer}>
             <div className={classes.topItem}>
-                <p style={{fontSize: "60px", color: "#FFFFFF"}}>
+                <div className={classes.center} style={{fontSize: "60px", color: "#FFFFFF"}}>
                   見つけよう
-                </p>
+                </div>
                 <div className={classes.center}>
                   <input onKeyPress={this.onKeyPress} className={classes.searchBox} ref="search_box" placeholder="プロジェクトを検索"></input>
                 </div>

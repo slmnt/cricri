@@ -51,7 +51,7 @@ const styles = {
         fontSize: "20px",
         width: "300px",
         height: "70px",
-        paddingTop: "20px"
+        marginTop: "20px"
     },
     textarea: {
         width: "100%",
