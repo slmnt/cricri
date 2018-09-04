@@ -22,8 +22,9 @@ import {mapStateToProps} from '../utils/misc';
 const styles = {
     main: {
         paddingTop: "40px",
-        paddingRight: "20px",
-        paddingLeft: "20px",
+        paddingBottom: "40px",
+        paddingRight: "var(--main-padding)",
+        paddingLeft: "var(--main-padding)",
     },
     header: {
         display: "flex",
@@ -39,6 +40,7 @@ const styles = {
     },
     desc: {
         fontSize: "20px",
+        paddingBottom: "20px"
     },
     avatar: {
         width: 200,
@@ -48,7 +50,39 @@ const styles = {
     joinBtn: {
         fontSize: "20px",
         width: "300px",
-        height: "70px"
+        height: "70px",
+        paddingTop: "20px"
+    },
+    textarea: {
+        width: "100%",
+        height: "100px"
+    },
+    commentContainer: {
+        width: "100%",
+        display: "flex",
+        flexFlow: "column nowrap",
+        justifyContent: "space-between",
+        paddingTop: "40px"
+    },
+    comment: {
+        width: "100%",
+        paddingBottom: "20px"
+    },
+    memberContainer: {
+        width: "100%",
+        display: "flex",
+        flexFlow: "row wrap",
+    },
+    memberBlock: {
+        paddingTop: "40px",
+        paddingBottom: "40px"
+    },
+    commentBlock: {
+        paddingTop: "40px",
+        paddingBottom: "40px"
+    },
+    blockTitle: {
+        fontSize: "25px"
     }
 };
 
@@ -59,7 +93,8 @@ class Project extends React.Component {
       name: "",
       desc: "",
       owner: {},
-      comments: []
+      comments: [],
+      members: []
     };
     componentDidMount() {
         console.log("Project", this.props)
@@ -83,11 +118,21 @@ class Project extends React.Component {
         this.setState({
             comments: r,
         })
-        console.log(r)
+        console.log("comments", r)
+      })
+      api.getProjectMembers(id).then(r => {
+        this.setState({
+            members: r,
+        })
+        console.log("members", r)
       })
     }
     onClickJoin = () => {
-
+        if (!this.state.id) {
+            return
+        }
+        console.log(this.state)
+        api.joinProject(this.state.id).then(r => console.log(r))
     }
     onClickPost = () => {
         if (!this.state.id) {
@@ -95,7 +140,10 @@ class Project extends React.Component {
         }
         const text = this.refs.text.value
         console.log(text)
-        api.createProjectComment(this.state.id, {message: text}).then(r => console.log(r))
+        api.createProjectComment(this.state.id, {message: text}).then(r => {
+            console.log(r)
+            this.getData()
+        })
     }
     render() {
         const {classes} = this.props;
@@ -122,15 +170,34 @@ class Project extends React.Component {
             <div className={classes.desc}>
                 {this.state.desc}
             </div>
-            <div>
-                コメント
-                <textarea ref="text">
-                </textarea>
-                <Button onClick={this.onClickPost} variant="contained" color="secondary">
-                    コメント投稿
-                </Button>
-                {this.state.comments.map(v => <Comment text={v.text} userdata={v.owner} />)}
+            <div className={classes.memberBlock}>
+                <div className={classes.blockTitle}>
+                    メンバー
+                </div>
+                <div className={classes.memberContainer}>
+                    {this.state.members.map(v => <UserLink userdata={v} /> )}
+                </div>
             </div>
+            <div className={classes.commentBlock}>
+                <div className={classes.blockTitle}>
+                    コメント
+                </div>
+                <div>
+                    <div>
+                        <textarea className={classes.textarea} ref="text">
+                        </textarea>
+                    </div>
+                    <div>
+                        <Button onClick={this.onClickPost} variant="contained" color="secondary">
+                            コメント投稿
+                        </Button>
+                    </div>
+                </div>
+                <div className={classes.commentContainer}>
+                    {this.state.comments.map(v => <div className={classes.comment}><Comment text={v.message} userdata={v.owner} /> </div> )}
+                </div>
+            </div>
+
           </div>
         );
     }

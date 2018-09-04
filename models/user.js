@@ -37,7 +37,9 @@ module.exports = (sequelize, DataTypes) => {
   User.associate = function(models) {
     models.User.belongsTo(models.Image, {as: 'Avatar'});
     models.User.belongsToMany(models.Project, {as: 'Projects', through: 'UserProject'});
-    models.User.hasMany(models.ProjectMsg, {as: 'Msgs', foreignKey: 'OwnerId'});
+    models.User.hasMany(models.ProjectMsg, {as: 'ProjMsgs', foreignKey: 'OwnerId'});
+    models.User.hasMany(models.UserMsg, {as: 'UserMsgs', foreignKey: 'OwnerId'});
+    models.User.hasMany(models.UserMsg, {as: 'Msgs', foreignKey: 'PlaceId'});
   };
 
   return User;

@@ -21,8 +21,10 @@ import Signup from './components/Signup';
 import Signin from './components/Signin';
 import MyPage from './components/MyPage';
 import Explore from './components/Explore';
+import SearchUser from './components/SearchUser';
 import Project from './components/Project';
 import User from './components/User';
+import ProjectCreator from './components/ProjectCreator';
 
 import RouteFilter from './components/RouteFilter';
 
@@ -95,8 +97,10 @@ class Other extends Component {
             <Route exact path='/tos' component={Tos} />
             <Route exact path='/mypage' component={MyPage} />} />
             <RouteFilter exact path='/explore' component={Explore} />
+            <RouteFilter exact path='/search' component={SearchUser} />
             <Route exact path='/projects/:id' component={Project} />
             <Route exact path='/users/:id' component={User} />
+            <Route exact path='/create' component={ProjectCreator} />
             <Route component={NotFound} />
           </Switch>
         </main>

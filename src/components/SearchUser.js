@@ -15,6 +15,7 @@ import api from '../utils/api';
 import { setParams, getSearchParams, getRelativePath } from '../utils/misc';
 
 import Loading from './Loading';
+import UserLink from './UserLink';
 
 const styles = {
   main: {
@@ -125,32 +126,6 @@ const styles = {
   }
 }
 
-class Box extends React.Component {
-  state = {};
-  render() {
-    const {classes} = this.props
-    return (
-      <div className={classNames(classes.box, classes.shadow)} onClick={this.props.onClickClbk}>
-        <div className={classes.boxTitle}>
-          {this.props.title}
-        </div>
-        <div className={classes.boxDesc}>
-          {this.props.desc}
-        </div>
-        <img src={this.props.img} />
-      </div>
-    );
-  }
-}
-
-Box.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
-
-Box = withStyles(styles)(Box);
-
-
-
 
 class PageButton extends React.Component {
   state = {};
@@ -176,13 +151,13 @@ PageButton = withStyles(styles)(PageButton);
 
 
 
-class Explore extends React.Component {
+class SearchUser extends React.Component {
   state = {
     fetching: false,
     pageFrom: 1,
     pages: [1, 2, 3, 4, 5, 6, 7],
     people: [],
-    projects: []
+    users: []
   };
   componentDidMount() {
     this.onRouteChange(this.props.location)
@@ -202,10 +177,10 @@ class Explore extends React.Component {
     }
     this.state.fetching = true
     var {q, s, p, l} = params
-    api.searchProjects(params).then(result => {
+    api.searchUsers(params).then(result => {
       this.setState({
         count: result.count,
-        projects: result.items
+        users: result.items
       })
     }).catch(e => {}). then(r => {
       this.state.fetching = false
@@ -245,32 +220,26 @@ class Explore extends React.Component {
     var sp = getSearchParams(this.props.history.location)
     return sp.get('p') == num.toString()
   }
-  openProj = (id) => {
-    return () => {
-      var path = "/projects/" + id.toString()
-      this.props.history.push(path)
-    }
-  }
   render() {
     const {classes} = this.props
     return (
       <div className={classes.main}>
         <div className={classes.center}>
           <div className={classes.title}>
-            プロジェクトを検索
+            ユーザを検索
           </div>
           <input onKeyPress={this.onKeyPress} className={classes.searchBox} ref="search_box"></input>
         </div>
         <div className={classes.center}>
-          <Loading enable={this.state.projects.length == 0}>
+          <Loading enable={this.state.users.length == 0}>
             <div className={classes.boxContainer}>
               {
-                this.state.projects.map(v => <Box id={v.id} title={v.name} desc={v.desc} onClickClbk={this.openProj(v.id)}/>)
+                this.state.users.map(v => <UserLink userdata={v} />)
               }
             </div>
           </Loading>
-          {this.state.projects.length == 0 &&
-            <div className={classes.notFound}>プロジェクトが見つかりません</div>
+          {this.state.users.length == 0 &&
+            <div className={classes.notFound}>ユーザが見つかりません</div>
           }
         </div>
         <div className={classes.pagination}>
@@ -294,8 +263,8 @@ class Explore extends React.Component {
   }
 }
 
-Explore.propTypes = {
+SearchUser.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Explore);
+export default withStyles(styles)(SearchUser);

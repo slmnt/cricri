@@ -67,6 +67,12 @@ const styles = {
       cursor: "pointer"
     }
   },
+  create: {
+    border: "0px",
+    borderRadius: "10px",
+    background: "linear-gradient(90deg, #f39884, #fc2354)",
+    cursor: "pointer"
+  },
   "@media (max-width: 900px)": {
     menuButton: {
       display: "block",
@@ -122,14 +128,16 @@ class Navbar extends React.Component {
           <div className={classes.logoContainer}>
             <Link to="/"><img src={logo} className={classes.logo} alt="logo" /></Link>
           </div>
-          <div className={classes.logo}>
-            <input/>
+          <div className={classes.navButton}>
+            <button className={classes.create} onClick={this.setLocation('/create')}>
+              プロジェクトを作成する
+            </button>
           </div>
           <div className={classes.navButton} onClick={this.setLocation('/explore')}>
-            探す
+            プロジェクトを探す
           </div>
-          <div className={classes.navButton} onClick={this.setLocation('/explore')}>
-            探す
+          <div className={classes.navButton} onClick={this.setLocation('/search')}>
+            人を探す
           </div>
           {
             this.props.isAuthenticated &&

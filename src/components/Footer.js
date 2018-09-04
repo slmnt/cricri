@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Link, Switch, NavLink, Redirect } from "react-router-dom";
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
@@ -8,6 +9,10 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import classnames from 'classnames';
+
+import { loginUser, logoutUser, getMyInfo, openSignin, openSignup, closeSignin, closeSignup, test } from '../actions'
+import {mapStateToProps} from '../utils/misc';
+
 
 const styles = {
     root: {
@@ -76,6 +81,10 @@ var links = [
 class Footer extends React.Component {
     state = {
     };
+    logOut = (e) => {
+        e.preventDefault()
+        logoutUser()(this.props.dispatch)
+    }
     render() {
         const {classes} = this.props;
         return (
@@ -103,6 +112,9 @@ class Footer extends React.Component {
                         <div className={classes.navBlock}>
                             <h4>あおあおあおｋ</h4>
                         </div>
+                        <a href="/" onClick={this.logOut}>
+                            ログアウト
+                        </a>
                     </div>
                 </div>
                 <div className={classNames(classes.bottomFooter, classes.flexContainer)}>
@@ -120,4 +132,4 @@ Footer.propTypes = {
     classes: PropTypes.object.isRequired,
 };
   
-export default withStyles(styles)(Footer);
+export default connect(mapStateToProps)(withStyles(styles)(Footer));

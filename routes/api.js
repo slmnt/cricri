@@ -10,15 +10,46 @@ var secret = require('../config/secret').secret;
 var path_cfg  = require('../config/path');
 
 var multer  = require('multer')
-var upload = multer({ dest: path_cfg.upload })
 
 const crypto = require('crypto');
-const hash = crypto.createHash('sha512');
+const hash = crypto.createHash('md5');
 
 import errors from '../utils/errors'
 var mail = require('../utils/mail');
 
+
+
 var expiresIn = 3600; //604800; // トークンの有効時間 (秒)  一週間ほど？
+
+
+function random_hash() {
+    var current_date = (new Date()).valueOf().toString();
+    var random = Math.random().toString();
+    return hash.update(current_date + random).digest('hex');
+}
+function fileFilter(req, file, cb) {
+    console.log(file)
+    switch (file.mimetype) {
+        case "image/jpeg":
+        case "image/png":
+            cb(null, true)
+        default:
+            cb(null, false)
+    }
+}
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path_cfg.upload)
+    },
+    filename: function (req, file, cb) {
+      var h = file.originalname.split(".")
+      var filename = random_hash().toString() + "." + h[h.length - 1]
+      console.log(h, file)
+      cb(null, filename)
+    }
+})
+var upload = multer({ dest: path_cfg.upload, fileFilter: fileFilter, storage: storage })
+
 
 // 応答
 var messages = {
@@ -66,12 +97,41 @@ function get_user(param) {
         }
     )
 }
+function filename_to_path(filename) {
+    return "/upload/" + filename
+}
+function user_to_object(u) {
+    console.log(u)
+    return u.getAvatar().then(avatar => {
+        return {
+            id: u.id,
+            name: u.name,
+            shortDesc: u.shortDesc,
+            desc: u.desc,
+            avatar: filename_to_path(avatar.filename)
+        }
+    })
+}
 function project_to_object(p) {
     return p.getOwner().then(owner => {
         return {
             id: p.id,
             name: p.name,
             desc: p.desc,
+            owner: {
+                id: owner.id,
+                name: owner.name,
+                shortDesc: owner.shortDesc,
+                avatar: owner.avatar,
+            }
+        }
+    })
+}
+function usermsg_to_object(p) {
+    return p.getOwner().then(owner => {
+        return {
+            id: p.id,
+            message: p.message,
             owner: {
                 id: owner.id,
                 name: owner.name,
@@ -136,11 +196,15 @@ function promise_all(array, func) {
 }
 
 function search_query_to_object(q) {
+    if (!q || Object.keys(q).length === 0) {
+        return {}
+    }
     var {q, s, p, l} = q // query, sort, page, limit
     p = p && parseInt(p)
     l = l && parseInt(l) || 10 // デフォルトで 10
-    var param = {
-        where: {
+    var param = {}
+    if (q) {
+        param.where = {
             $or: [
                 { 'name': { like: '%' + q + '%' } },
             ]
@@ -158,6 +222,31 @@ function search_query_to_object(q) {
         ]
     }
     return param
+}
+function search_user(query, count=false) {
+    var param = search_query_to_object(query)
+    if (count) {
+        delete param.limit
+        delete param.offset
+    }
+
+    return models.User[count && "count" || "findAll"](param)
+    .catch(err => {
+        console.log("Error [search_user()]: ", err)
+    }).then(result => {
+            if (result === undefined) {
+                throw new errors.UserNotFound("")
+            }
+            if (result === null) {
+                throw new errors.TableNotFound("")
+            }
+            if (count) {
+                return result
+            } else {
+                return result
+            }
+        }
+    )
 }
 function search_project(query, count=false) {
     var param = search_query_to_object(query)
@@ -351,9 +440,48 @@ var apis = [
         func: function (req, res) {
             get_user({id: req.params.id})
             .then(result => {
-                console.log(result);
-                res.send(result);
+                return user_to_object(result).then(r => {
+                    console.log(r);
+                    res.send(r);
+                })
             }).catch(e => {
+                response(res, 400, e)
+            })
+        }
+    },
+    {
+        // ユーザ検索
+        method: "get", url: "/users", auth: false,
+        func: function (req, res) {
+            var {query} = url.parse(req.url, true)
+            search_user(query, true).then(count => {
+                search_user(query).then(result => {
+                    return promise_all(result, user_to_object).then(r => {
+                        res.send({
+                            count: count,
+                            items: r
+                        });
+                    })
+                }).catch(e => {
+                    console.log(e)
+                    response(res, 400, e)
+                })
+            })
+        }
+    },
+    {
+        // 自分の情報を更新
+        method: "put", url: "/me", auth: true,
+        func: function (req, res) {
+            var {name, avatar} = req.body;
+            get_user({username: req.user.username}).then(result => {
+                var obj = {}
+                if (avatar) {
+                    obj.avatar = avatar
+                }
+                result.update(obj)
+            }).catch(e => {
+                console.log(e)
                 response(res, 400, e)
             })
         }
@@ -363,12 +491,9 @@ var apis = [
         method: "get", url: "/me", auth: true,
         func: function (req, res) {
             get_user({username: req.user.username}).then(result => {
-                res.status(200).json({
-                    id: result.id,
-                    username: result.username,
-                    email: result.email,
-                    avatar: result.avatar
-                });
+                return user_to_object(result).then(r => {
+                    res.status(200).json(r)
+                })
             }).catch(e => {
                 console.log(e)
                 response(res, 400, e)
@@ -401,7 +526,6 @@ var apis = [
                     desc: desc,
                 }).then(project => {
                     user.addProject(project)
-                    console.log(user)
                     project.setOwner(user)
                     res.json(project)
                 })
@@ -415,10 +539,9 @@ var apis = [
         method: "get", url: "/projects", auth: false,
         func: function (req, res) {
             var {query} = url.parse(req.url, true)
-            console.log("/projects")
+            console.log("/projects", query)
             search_project(query, true).then(count => {
                 search_project(query).then(result => {
-                    console.log(result);
                     res.send({
                         count: count,
                         items: result
@@ -436,7 +559,6 @@ var apis = [
         func: function (req, res) {
             console.log("/projects/:id", req.params.id)
             get_project({id: req.params.id}).then(result => {
-                console.log(result);
                 return project_to_object(result).then(r => res.send(r));
             }).catch(e => {
                 response(res, 400, e)
@@ -462,14 +584,11 @@ var apis = [
                     models.ProjectMsg.create({
                         message: message,
                     }).then(projectMsg => {
-                        user.addMsg(projectMsg)
-                        console.log(user)
+                        user.addProjMsg(projectMsg)
                         projectMsg.setOwner(user)
-                        console.log(projectMsg)
                         project.addMsg(projectMsg)
-                        console.log(project)
                         projectMsg.setPlace(project)
-                        console.log(projectMsg)
+                        res.json({ok: true})
                     })
                 })
             }).catch(e => {
@@ -482,11 +601,113 @@ var apis = [
         method: "get", url: "/projects/:id/comments", auth: false,
         func: function (req, res) {
             var {query} = url.parse(req.url, true)
-            get_project({id: req.params.id}).then(project => {
-                project.getMsgs().then(r => {
+            var params = search_query_to_object(query)
+            params.id = req.params.id
+            get_project(params).then(project => {
+                project.getMsgs({
+                    order: [
+                        ["updatedAt", 'DESC'],
+                    ]
+                }).then(r => {
                     console.log(r);
                     return promise_all(r, projectmsg_to_object).then(result => res.send(result));
                 })
+            })
+        }
+    },
+    {
+        // ユーザメッセージ（コメント）作成
+        method: "post", url: "/users/:id/comments", auth: true,
+        func: function (req, res) {
+            var {username} = req.user
+            var {message} = req.body
+            get_user({username}).then(user => {
+                get_user({id: req.params.id}).then(target => {
+                    models.UserMsg.create({
+                        message: message,
+                    }).then(UserMsg => {
+                        console.log(UserMsg)
+                        UserMsg.setOwner(user)
+                        UserMsg.setPlace(target)
+                        user.addUserMsg(UserMsg)
+                        target.addMsg(UserMsg)
+                        res.json({ok: true, message: "success"})
+                    })
+                })
+            }).catch(e => {
+                response(res, 400, e)
+            })
+        }
+    },
+    {
+        // ユーザメッセージ（コメント）取得
+        method: "get", url: "/users/:id/comments", auth: false,
+        func: function (req, res) {
+            var {query} = url.parse(req.url, true)
+            var params = search_query_to_object(query)
+            params.id = req.params.id
+            get_user(params).then(user => {
+                user.getMsgs({
+                    order: [
+                        ["updatedAt", 'DESC'],
+                    ]
+                }).then(r => {
+                    console.log(r);
+                    return promise_all(r, usermsg_to_object).then(result => res.send(result));
+                })
+            })
+        }
+    },
+    {
+        // プロジェクトに参加
+        method: "post", url: "/projects/:id/members", auth: true,
+        func: function (req, res) {
+            var {username} = req.user
+            get_user({username}).then(user => {
+                get_project({id: req.params.id}).then(project => {
+                    project.addMember(user)
+                    res.json({ok: true})
+                })
+            }).catch(e => {
+                response(res, 400, e)
+            })
+        }
+    },
+    {
+        // プロジェクトのメンバを取得
+        method: "get", url: "/projects/:id/members", auth: false,
+        func: function (req, res) {
+            var {query} = url.parse(req.url, true)
+            var params = search_query_to_object(query)
+            params.id = req.params.id
+            get_project(params).then(project => {
+                project.getMembers().then(r => {
+                    res.json(r)
+                })
+            }).catch(e => {
+                response(res, 400, e)
+            })
+        }
+    },
+    {
+        // 画像アップロード
+        method: "post", url: "/upload", auth: true, form: "avatar",
+        func: function (req, res) {
+            var {username} = req.user
+            var filename = req.file.filename
+
+            get_user({username}).then(user => {
+                console.log(req.file, req.files)
+                models.Image.create({
+                    filename: filename,
+                }).then(image => {
+                    user.setAvatar(image)
+                    res.status(200).json({
+                        path: filename_to_path(filename),
+                    });
+                })
+            }).catch(e => {
+                response(res, 400, e)
             })
         }
     }
@@ -514,18 +735,20 @@ function isRevoked(req, payload, done) {
     })
 }
 for (var a of apis) {
+    var args = []
     if (a.auth) {
-        router[a.method](a.url, ejwt({secret: secret, isRevoked: isRevoked}), a.func, errorHandler);
-    } else {
-        router[a.method](a.url, a.func);
+        args.push(ejwt({secret: secret, isRevoked: isRevoked}))
     }
+    if (a.form) {
+        args.push(upload.single(a.form))
+    }
+    args.push(a.func)
+    if (a.auth) {
+        args.push(errorHandler)
+    }
+    router[a.method](a.url, ...args)
 }
 
-router.post("/upload", upload.single('avatar'), function (req, res, next) {
-    console.log("file", req.file)
-    console.log("body", req.body)
-    res.status(200).json({error: "", message: ""});
-})
 
 router.get('*', function(req, res, next) {
     res.status(404).json({error: "Not Found", message: ""});

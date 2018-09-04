@@ -21,33 +21,25 @@ import {mapStateToProps} from '../utils/misc';
 
 const styles = {
     main: {
-      height: "50px",
-      width: "200px",
+      minHeight: "100px",
+      minWidth: "200px",
       borderRadius: "5px",
-      boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 4px 8px 0 rgba(0, 0, 0, 0.2)",
+      border: "1px solid #999999",  
+      //boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 4px 8px 0 rgba(0, 0, 0, 0.2)",
       padding: "10px",
       display: "flex",
-      cursor: "pointer"
+      flexFlow: "column nowrap",
     },
-    info: {
-      paddingLeft: "20px"
+    textContainer: {
+      flex: "1 1 auto"
     },
-    name: {
-      fontSize: "17ox"
+    avatarContainer: {
+      display: "flex",
+      flexFlow: "row-reverse nowrap"
     },
-    shortDesc: {
-      fontSize: "20px",
+    date: {
+      fontSize: "15px",
       color: "#cccccc"
-    },
-    avatar: {
-      width: "50px",
-      height: "50px"
-    },
-    avatarImage: {
-      width: 47,
-      height: 47,
-      borderRadius: "5px",
-      border: "3px solid #aaaaaa"
     }
 };
 
@@ -58,8 +50,15 @@ class Comment extends React.Component {
       const {classes} = this.props;
       return (
         <div className={classes.main}>
-          {this.props.text}
-          <UserLink userdata={this.props.userdata} />
+          <div className={classes.textContainer}>
+            {this.props.text}
+          </div>
+          <div className={classes.avatarContainer}>
+            <UserLink userdata={this.props.userdata} />
+            <div className={classes.date}>
+              {this.props.date}
+            </div>
+          </div>
         </div>
       );
   }

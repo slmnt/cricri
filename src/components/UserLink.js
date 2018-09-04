@@ -63,7 +63,7 @@ class UserLink extends React.Component {
         return (
           <div className={classes.main} onClick={this.onClick}>
             <div className={classes.avatar}>
-              <img className={classes.avatarImage} src={spinnerImage} />
+              <img className={classes.avatarImage} src={this.props.userdata.avatar} />
             </div>
             <div className={classes.info}>
               <div className={classes.name}>

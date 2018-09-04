@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Link, NavLink, Redirect } from "react-router-dom";
 import { connect } from 'react-redux'
+import { withRouter } from "react-router-dom";
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -96,6 +97,7 @@ class MobileMenu extends React.Component {
   goTo = (path) => {
     return () => {
       this.props.history.push(path)
+      this.onClickOverlay()
     }
   }
   logOut = () => {
@@ -117,9 +119,18 @@ class MobileMenu extends React.Component {
               ホーム
             </div>
             <div className={classes.item} onClick={this.goTo("/explore")}>
-              検索
+              プロジェクト検索
             </div>
-            {this.state.isAuthenticated &&
+            {this.props.isAuthenticated &&
+              <React.Fragment>
+                <div className={classes.item} onClick={this.goTo("/mypage")}>
+                  マイページ
+                </div>
+                <div className={classes.item} onClick={this.logOut}>
+                  ログアウト
+                </div>
+              </React.Fragment>
+              ||
               <React.Fragment>
                 <div className={classes.item} onClick={this.goTo("/")}>
                   登録
@@ -128,10 +139,6 @@ class MobileMenu extends React.Component {
                   ログイン
                 </div>
               </React.Fragment>
-              ||
-              <div className={classes.item} onClick={this.logOut}>
-                ログアウト
-              </div>
             }
           </div>
         </div>
@@ -143,4 +150,4 @@ MobileMenu.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default connect(mapStateToProps)(withStyles(styles)(MobileMenu));
+export default connect(mapStateToProps)(withRouter(withStyles(styles)(MobileMenu)));

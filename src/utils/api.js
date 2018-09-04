@@ -89,6 +89,12 @@ var helper = {
   },
 }
 var shorthand = {
+  upload: function (formData) {
+    let config = {
+      body: formData
+    }
+    return callAPI("post", "/upload", true, config)
+  },
   createSession: function (username, password) {
     let config = helper.withParams({}, {username, password})
     return callAPI("post", "/session", false, config);
@@ -108,6 +114,14 @@ var shorthand = {
   },
   getUser: function (id) {
     return callAPI("get", "/users/" + id.toString(), false);
+  },
+  searchUsers: function (params) {
+    let path = helper.withUrlParams("/users", params)
+    return callAPI("get", path, false);
+  },
+  updateUser: function (params) {
+    let config = helper.withParams({}, params)
+    return callAPI("put", "/me", true, params);
   },
   getMyInfo: function () {
     return callAPI("get", "/me", true);
@@ -129,12 +143,25 @@ var shorthand = {
     let path = helper.withUrlParams("/projects", params)
     return callAPI("get", path, false)
   },
+  joinProject: function(id) {
+    return callAPI("post", "/projects/" + id.toString() + "/members", true)
+  },
+  getProjectMembers: function(id) {
+    return callAPI("get", "/projects/" + id.toString() + "/members", false)
+  },
   createProjectComment: function(id, params) {
     let config = helper.withParams({}, params)
     return callAPI("post", "/projects/" + id.toString() + "/comments", true, config);
   },
   getProjectComments: function(id) {
     return callAPI("get", "/projects/" + id.toString() + "/comments", false)
+  },
+  createUserComment: function(id, params) {
+    let config = helper.withParams({}, params)
+    return callAPI("post", "/users/" + id.toString() + "/comments", true, config);
+  },
+  getUserComments: function(id) {
+    return callAPI("get", "/users/" + id.toString() + "/comments", false)
   }
 }
 

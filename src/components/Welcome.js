@@ -13,8 +13,13 @@ import Test from '../components/Test';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Form from '../components/Form';
+import UserLink from './UserLink';
 
 import wallpaper from '../wallpaper-cooperating.jpg';
+
+import api from '../utils/api';
+
+import { setParams, getSearchParams, getRelativePath } from '../utils/misc';
 
 
 const styles = {
@@ -43,8 +48,8 @@ const styles = {
     marginTop: "200px"
   },
   flex: {
-    paddingRight: "20px",
-    paddingLeft: "20px",
+    paddingRight: "60px",
+    paddingLeft: "60px",
     display: "flex",
     flexFlow: "column wrap",
     alignContent: "center"
@@ -52,7 +57,33 @@ const styles = {
   hugeText: {
     marginTop: 200,
     marginBottom: 100,
-    fontSize: "100px"
+    fontSize: "100px",
+    color: "#FFFFFF"
+  },
+  searchBox: {
+    width: "90%",
+    height: "30px",
+    fontSize: "25px",
+    borderRadius: "3px",
+    border: "1px solid #cccccc",
+    outline: "0px",
+    padding: "10px",
+    "&:focus": {
+      outline: "1px solid #4da7fe !important"
+    }
+  },
+  center: {
+    display: "flex",
+    flexFlow: "column nowrap",
+    alignItems: "center",
+    alignContent: "center",
+    justifyContent: "center",
+    textAlign: "center",
+    fontSize: "25px",
+  },
+  title: {
+    textAlign: "center",
+    fontSize: "25px",
   },
   '@media (max-width: 900px)': {
     form: {
@@ -64,9 +95,47 @@ const styles = {
 
 
 class Welcome extends Component {
-  state = {};
+  state = {
+    randomUsers: [],
+    randomProjects: []
+  };
   componentDidMount() {
     window.scrollTo(0, 0)
+    this.getRandomUsers()
+    this.getRandomProjects()
+  }
+  getRandomUsers = () => {
+    var params = {
+      q: "",
+      p: 1,
+      l: 5
+    }
+    api.searchUsers(params).then(r => {
+      this.setState({
+        randomUsers: r.items
+      })
+    })
+  }
+  getRandomProjects = () => {
+    var params = {
+      q: "",
+      p: 1,
+      l: 5
+    }
+    api.searchProjects(params).then(r => {
+      this.setState({
+        randomProjects: r.items
+      })
+    })
+  }
+  onKeyPress = (e) => {
+    if (e.key == 'Enter') {
+      this.search(this.refs.search_box.value.trim())
+    }
+  }
+  search = (text) => {
+    var path = getRelativePath(setParams("/explore", {q: text, p: 1}))
+    this.props.history.push(path)
   }
   render() {
     const {classes} = this.props;
@@ -77,14 +146,29 @@ class Welcome extends Component {
           <div className={classes.topContainer}>
             <div className={classes.topItem}>
                 <p style={{fontSize: "60px", color: "#FFFFFF"}}>
-                  今日はいい天気
+                  見つけよう
                 </p>
+                <div className={classes.center}>
+                  <input onKeyPress={this.onKeyPress} className={classes.searchBox} ref="search_box" placeholder="プロジェクトを検索"></input>
+                </div>
             </div>
           </div>
         </div>
         <div className={classes.flex} style={{height: "1000px", backgroundColor: "#cccccc"}}>
-          <div className={classes.hugeText}>始めよう</div>
-          <div>適当な画像</div>
+          <div className={classes.center}>
+            ユーザ
+          </div>
+          <div>
+            {this.state.randomUsers.map(v => <UserLink userdata={v} />)}
+          </div>
+          <div className={classes.center}>
+            プロジェクト
+          </div>
+          <div>
+            {
+              //this.state.randomProjects.map(v => <UserLink userdata={v} />)
+            }
+          </div>
         </div>
         <div className={classes.flex} style={{height: "1000px", backgroundColor: "#982384"}}>
           <div className={classes.hugeText}>始めよう</div>
