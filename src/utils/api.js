@@ -128,6 +128,13 @@ var shorthand = {
   searchProjects: function(params) {
     let path = helper.withUrlParams("/projects", params)
     return callAPI("get", path, false)
+  },
+  createProjectComment: function(id, params) {
+    let config = helper.withParams({}, params)
+    return callAPI("post", "/projects/" + id.toString() + "/comments", true, config);
+  },
+  getProjectComments: function(id) {
+    return callAPI("get", "/projects/" + id.toString() + "/comments", false)
   }
 }
 

@@ -81,6 +81,20 @@ function project_to_object(p) {
         }
     })
 }
+function projectmsg_to_object(p) {
+    return p.getOwner().then(owner => {
+        return {
+            id: p.id,
+            message: p.message,
+            owner: {
+                id: owner.id,
+                name: owner.name,
+                shortDesc: owner.shortDesc,
+                avatar: owner.avatar,
+            }
+        }
+    })
+} 
 function get_project(param) {
     return models.Project.findOne({
         where: param
@@ -111,6 +125,16 @@ function get_project_by_id(id) {
         }
     )
 }
+function promise_all(array, func) {
+    var proj = []
+    var parray = array.map(p => func(p).then(r => {
+        proj.push(r)
+    }))
+    return Promise.all(parray).then(r => {
+        return proj
+    })
+}
+
 function search_query_to_object(q) {
     var {q, s, p, l} = q // query, sort, page, limit
     p = p && parseInt(p)
@@ -155,13 +179,7 @@ function search_project(query, count=false) {
             if (count) {
                 return result
             } else {
-                var proj = []
-                var parray = result.map(p => project_to_object(p).then(r => {
-                    proj.push(r)
-                }))
-                return Promise.all(parray).then(r => {
-                    return proj
-                })
+                return promise_all(result, project_to_object)
             }
         }
     )
@@ -287,10 +305,11 @@ var apis = [
         // ユーザ作成
         method: "post", url: "/users", auth: false,
         func: function (req, res) {
-            var {username, password, email} = req.body;
+            var {username, name, password, email} = req.body;
             // 認証
             models.User.create({
                 username: username,
+                name: name,
                 password: password,
                 email: email
             }).then(function() {
@@ -462,11 +481,11 @@ var apis = [
         // プロジェクトメッセージ（コメント）取得
         method: "get", url: "/projects/:id/comments", auth: false,
         func: function (req, res) {
-            console.log("dwa")
+            var {query} = url.parse(req.url, true)
             get_project({id: req.params.id}).then(project => {
                 project.getMsgs().then(r => {
-                    console.log(r)
-                    res.json(r)
+                    console.log(r);
+                    return promise_all(r, projectmsg_to_object).then(result => res.send(result));
                 })
             })
         }

@@ -21,7 +21,7 @@ const styles = {
     },
     card: {
         width: "350px",
-        height: "350px"
+        height: "300px"
     },
     innerCard: {
       margin : "5%",

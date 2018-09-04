@@ -10,6 +10,9 @@ import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import classnames from 'classnames';
 
+import UserLink from './UserLink';
+import Comment from './Comment';
+
 import Loading from './Loading';
 import spinnerImage from '../spinner.jpg';
 
@@ -18,8 +21,24 @@ import {mapStateToProps} from '../utils/misc';
 
 const styles = {
     main: {
+        paddingTop: "40px",
         paddingRight: "20px",
         paddingLeft: "20px",
+    },
+    header: {
+        display: "flex",
+        flexFlow: "row wrap",
+        justifyContent: "space-between"
+    },
+    name: {
+        fontSize: "40px"
+    },
+    shortDesc: {
+        fontSize: "20px",
+        color: "#bbbbbb"
+    },
+    desc: {
+        fontSize: "20px",
     },
     avatar: {
         width: 200,
@@ -27,17 +46,20 @@ const styles = {
         borderRadius: "100%"
     },
     joinBtn: {
-        color: "#FFFFFF",
-        borderRadius: "5px",
-        backgroundColor: "Ef13a59",
+        fontSize: "20px",
+        width: "300px",
+        height: "70px"
     }
 };
 
+
 class Project extends React.Component {
     state = {
+      id: null,
       name: "",
       desc: "",
-      owner: {}
+      owner: {},
+      comments: []
     };
     componentDidMount() {
         console.log("Project", this.props)
@@ -50,29 +72,64 @@ class Project extends React.Component {
       console.log("project", id)
       api.getProject(id).then(r => {
           this.setState({
+            id: r.id,
             name: r.name,
             shortdesc: r.shortDesc,
             desc: r.desc,
+            owner: r.owner
           })
+        })
+      api.getProjectComments(id).then(r => {
+        this.setState({
+            comments: r,
+        })
+        console.log(r)
       })
     }
     onClickJoin = () => {
 
     }
+    onClickPost = () => {
+        if (!this.state.id) {
+            return
+        }
+        const text = this.refs.text.value
+        console.log(text)
+        api.createProjectComment(this.state.id, {message: text}).then(r => console.log(r))
+    }
     render() {
         const {classes} = this.props;
         return (
           <div className={classes.main}>
-            <div>
-              Project
+            <div className={classes.header}>
               <div>
-                  name: {this.props.name}
-                  <br />
-                  desc: {this.props.descl}
+                <div className={classes.name}>
+                    {this.state.name}
+                </div>
+                <div className={classes.shortDesc}>
+                    {this.state.shortDesc}
+                </div>
               </div>
-              <button className={classes.joinBtn} onClick={this.onClickJoin}>
-                  <span>参加</span>
-              </button>
+              <div>
+                <div>
+                    オーナー: <UserLink userdata={this.state.owner} />
+                </div>
+                <Button className={classes.joinBtn} onClick={this.onClickJoin} variant="contained" color="secondary">
+                    参加
+                </Button>
+              </div>
+            </div>
+            <div className={classes.desc}>
+                {this.state.desc}
+            </div>
+            <div>
+                コメント
+                <textarea ref="text">
+                </textarea>
+                <Button onClick={this.onClickPost} variant="contained" color="secondary">
+                    コメント投稿
+                </Button>
+                {this.state.comments.map(v => <Comment text={v.text} userdata={v.owner} />)}
             </div>
           </div>
         );

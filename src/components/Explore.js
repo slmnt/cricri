@@ -46,6 +46,9 @@ const styles = {
       outline: "1px solid #4da7fe !important"
     }
   },
+  notFound: {
+    alignText: "center"
+  },
   pagination: {
     display: "flex",
     flexFlow: "row nowrap",
@@ -95,8 +98,15 @@ const styles = {
     height: "200px",
     margin: "0px",
     borderRadius: "5px",
-    backgroundColor: "#223833",
+    backgroundColor: "#FFFFFF",
     textAlign: "center",
+    cursor: "pointer",
+    transition: "backgroundColor 0.5s",
+    border: "none",
+    padding: "1px",
+    "&:hover": {
+      backgroundColor: "#eff5f6"
+    }
   },
   boxTitle: {
     fontSize: "30px"
@@ -118,7 +128,7 @@ class Box extends React.Component {
   render() {
     const {classes} = this.props
     return (
-      <div className={classNames(classes.box, classes.shadow)}>
+      <div className={classNames(classes.box, classes.shadow)} onClick={this.props.onClickClbk}>
         <div className={classes.boxTitle}>
           {this.props.title}
         </div>
@@ -192,7 +202,8 @@ class Explore extends React.Component {
     var {q, s, p, l} = params
     api.searchProjects(params).then(result => {
       this.setState({
-        projects: result
+        count: result.count,
+        projects: result.items
       })
     }).catch(e => {}). then(r => {
       this.state.fetching = false
@@ -232,6 +243,12 @@ class Explore extends React.Component {
     var sp = getSearchParams(this.props.history.location)
     return sp.get('p') == num.toString()
   }
+  openProj = (id) => {
+    return () => {
+      var path = "/projects/" + id.toString()
+      this.props.history.push(path)
+    }
+  }
   render() {
     const {classes} = this.props
     return (
@@ -245,12 +262,12 @@ class Explore extends React.Component {
         <Loading enable={this.state.projects.length == 0}>
           <div className={classes.boxContainer}>
             {
-              this.state.projects.map(v => <Box id={v.id} title={v.name} desc={v.desc} />)
+              this.state.projects.map(v => <Box id={v.id} title={v.name} desc={v.desc} onClickClbk={this.openProj(v.id)}/>)
             }
           </div>
         </Loading>
         {this.state.projects.length == 0 &&
-          <div>プロジェクトが見つかりません</div>
+          <div className={classes.notFound}>プロジェクトが見つかりません</div>
         }
         <div className={classes.pagination}>
           <div className={classes.pageLink}>
@@ -259,7 +276,9 @@ class Explore extends React.Component {
           {
           this.state.pages.map(v => {
             var page = parseInt(this.state.pageFrom) + parseInt(v) - 1
-            return <PageButton key={v} num={page} link={this.getLink(page)} isSelected={this.isSelected(page)} callback={this.onClickPageBtn} />
+            var max_page = Math.ceil(this.state.count / this.state.pages.length)
+            return page <= max_page && <PageButton key={v} num={page} link={this.getLink(page)} isSelected={this.isSelected(page)} callback={this.onClickPageBtn} />
+              || false
           })
           }
           <div className={classes.pageLink}>

@@ -22,7 +22,7 @@ import api from '../utils/api';
 const styles = {
     card: {
         width: "400px",
-        height: "400px",
+        height: "450px",
     },
     innerCard: {
       margin : "5%",
@@ -68,10 +68,11 @@ class Form extends React.Component {
     onClickSignup = () => {
         const config = {
           username: this.state.username,
+          name: this.state.name,
           password: this.state.password,
           email: this.state.email
         }
-    
+        console.log(config)
         api.createUser(config).then(response => console.log(response));
     }
     handleChange = name => {
@@ -99,6 +100,14 @@ class Form extends React.Component {
                                 className={classes.textField}
                                 value={this.state.username}
                                 onChange={this.handleChange('username')}
+                                margin="normal"
+                            />
+                            <TextField
+                                id="name"
+                                label="ニックネーム"
+                                className={classes.textField}
+                                value={this.state.name}
+                                onChange={this.handleChange('name')}
                                 margin="normal"
                             />
                             <TextField
