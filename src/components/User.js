@@ -120,7 +120,8 @@ class User extends React.Component {
         if (this.props.me && this.props.userdata) {
           this.setState({
             id: this.props.userdata.username,
-            username: this.props.userdata.username,
+            username: this.props.userdata.name,
+            name: this.props.userdata.name,
             shortdesc: this.props.userdata.shortDesc,
             desc: this.props.userdata.desc,
             avatar: this.props.userdata.avatar,
@@ -172,6 +173,20 @@ class User extends React.Component {
     isMe = () => {
       return this.state.id && this.props.userdata && this.state.id.toString() == this.props.userdata.id.toString()
     }
+    data = (name) => {
+      if (this.props.userdata) {
+        var map = {
+          id: this.props.userdata.username,
+          username: this.props.userdata.name,
+          name: this.props.userdata.name,
+          shortdesc: this.props.userdata.shortDesc,
+          desc: this.props.userdata.desc,
+          avatar: this.props.userdata.avatar,
+        }
+        return map
+      }
+      return this.state
+    }
     test = () => {
       var formData = new FormData(this.form.current);
       console.log(formData.get('avatar'))
@@ -201,7 +216,7 @@ class User extends React.Component {
           <div className={classes.main}>
             <div className={classes.basics}>
               <div className={classes.avatar}>
-                <img className={classes.avatarImage} src={this.state.avatar} />
+                <img className={classes.avatarImage} src={this.data().avatar} />
                 { this.isMe() &&
                   <div>
                   <form ref={this.form} id="myForm" name="myForm">
@@ -213,15 +228,15 @@ class User extends React.Component {
               </div>
               <div className={classes.flex}>
                 <div className={classes.name}>
-                  {this.state.name}
+                  {this.data().name}
                 </div>
                 <div className={classes.job}>
-                  {this.state.shortdesc}
+                  {this.data().shortdesc}
                 </div>
               </div>
             </div>
             <div className={classes.desc}>
-              {this.state.desc}
+              {this.data().desc}
             </div>
             <div className={classes.commentBlock}>
                 <div className={classes.blockTitle}>
