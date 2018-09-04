@@ -117,8 +117,9 @@ class User extends React.Component {
     };
     componentDidMount() {
         window.scrollTo(0, 0)
-        if (this.props.me) {
+        if (this.props.me && this.props.userdata) {
           this.setState({
+            id: this.props.userdata.username,
             username: this.props.userdata.username,
             shortdesc: this.props.userdata.shortDesc,
             desc: this.props.userdata.desc,
@@ -130,21 +131,28 @@ class User extends React.Component {
         this.form = React.createRef();
     }
     getData() {
-      const {params} = this.props.match
-      const id = parseInt(params.id, 10)
-      api.getUser(id).then(r => {
-        console.log(r)
-        this.setState({
-          id: r.id,
-          username: r.username,
-          name: r.name,
-          shortdesc: r.shortDesc,
-          desc: r.desc,
-          avatar: r.avatar,
+      if (this.props.me) {
+        if (!this.state.userdata) {
+          return
+        }
+        var id = this.state.userdata.id
+      } else if (!this.props.me) {
+        const {params} = this.props.match
+        const id = parseInt(params.id, 10)
+        api.getUser(id).then(r => {
+          console.log(r)
+          this.setState({
+            id: r.id,
+            username: r.username,
+            name: r.name,
+            shortdesc: r.shortDesc,
+            desc: r.desc,
+            avatar: r.avatar,
+          })
+        }).catch(e => {
+          this.setState(this.dummy)
         })
-      }).catch(e => {
-        this.setState(this.dummy)
-      })
+      }
       api.getUserComments(id).then(r => {
         this.setState({
             comments: r,

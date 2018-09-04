@@ -8,11 +8,11 @@ module.exports = {
       storage: ":memory:"
     },
     production: {
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      host: process.env.DB_HOSTNAME,
-      dialect: 'mysql',
+      username: "postgres", //process.env.DB_USERNAME,
+      password: "test123", //process.env.DB_PASSWORD,
+      database: "test", //process.env.DB_NAME,
+      host: "localhost:5432", //process.env.DB_HOSTNAME,
+      dialect: "postgres", //'mysql',
       use_env_variable: 'DATABASE_URL'
     }
 };
