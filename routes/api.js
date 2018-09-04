@@ -18,7 +18,7 @@ const hash = crypto.createHash('sha512');
 import errors from '../utils/errors'
 var mail = require('../utils/mail');
 
-var expiresIn = 300; //604800; // トークンの有効時間 (秒)  一週間ほど？
+var expiresIn = 3600; //604800; // トークンの有効時間 (秒)  一週間ほど？
 
 // 応答
 var messages = {
@@ -49,6 +49,7 @@ function is_expired(iat) {
     return false;
 }
 
+
 function get_user(param) {
     return models.User.findOne({
         where: param
@@ -66,16 +67,19 @@ function get_user(param) {
     )
 }
 function project_to_object(p) {
-    return {
-        id: p.id,
-        name: p.name,
-        desc: p.desc,
-        owner: {
-            id: p.getOwner().id,
-            name: p.getOwner().name,
-            avatar: p.getOwner().avatar
+    return p.getOwner().then(owner => {
+        return {
+            id: p.id,
+            name: p.name,
+            desc: p.desc,
+            owner: {
+                id: owner.id,
+                name: owner.name,
+                shortDesc: owner.shortDesc,
+                avatar: owner.avatar,
+            }
         }
-    }
+    })
 }
 function get_project(param) {
     return models.Project.findOne({
@@ -89,13 +93,26 @@ function get_project(param) {
             if (result === null) {
                 throw new errors.TableNotFound("")
             }
-            return project_to_object(result)
+            return result
         }
     )
 }
-
-function search_project(query) {
-    var {q, s, p, l} = query // query, sort, page, limit
+function get_project_by_id(id) {
+    return models.Project.findById(id).catch(err => {
+        console.log("Error [get_project_by_id()]: ", param, err)
+    }).then(result => {
+            if (result === undefined) {
+                throw new errors.ProjectNotFound("")
+            }
+            if (result === null) {
+                throw new errors.TableNotFound("")
+            }
+            return result
+        }
+    )
+}
+function search_query_to_object(q) {
+    var {q, s, p, l} = q // query, sort, page, limit
     p = p && parseInt(p)
     l = l && parseInt(l) || 10 // デフォルトで 10
     var param = {
@@ -116,7 +133,16 @@ function search_project(query) {
             [s, 'DESC'],
         ]
     }
-    return models.Project.findAll(param)
+    return param
+}
+function search_project(query, count=false) {
+    var param = search_query_to_object(query)
+    if (count) {
+        delete param.limit
+        delete param.offset
+    }
+
+    return models.Project[count && "count" || "findAll"](param)
     .catch(err => {
         console.log("Error [get_project()]: ", err)
     }).then(result => {
@@ -126,7 +152,17 @@ function search_project(query) {
             if (result === null) {
                 throw new errors.TableNotFound("")
             }
-            return result.map(p => project_to_object(p))
+            if (count) {
+                return result
+            } else {
+                var proj = []
+                var parray = result.map(p => project_to_object(p).then(r => {
+                    proj.push(r)
+                }))
+                return Promise.all(parray).then(r => {
+                    return proj
+                })
+            }
         }
     )
 }
@@ -361,12 +397,17 @@ var apis = [
         func: function (req, res) {
             var {query} = url.parse(req.url, true)
             console.log("/projects")
-            search_project(query).then(result => {
-                console.log(result);
-                res.send(result);
-            }).catch(e => {
-                console.log(e)
-                response(res, 400, e)
+            search_project(query, true).then(count => {
+                search_project(query).then(result => {
+                    console.log(result);
+                    res.send({
+                        count: count,
+                        items: result
+                    });
+                }).catch(e => {
+                    console.log(e)
+                    response(res, 400, e)
+                })
             })
         }
     },
@@ -377,7 +418,7 @@ var apis = [
             console.log("/projects/:id", req.params.id)
             get_project({id: req.params.id}).then(result => {
                 console.log(result);
-                res.send(result);
+                return project_to_object(result).then(r => res.send(r));
             }).catch(e => {
                 response(res, 400, e)
             })
@@ -414,6 +455,19 @@ var apis = [
                 })
             }).catch(e => {
                 response(res, 400, e)
+            })
+        }
+    },
+    {
+        // プロジェクトメッセージ（コメント）取得
+        method: "get", url: "/projects/:id/comments", auth: false,
+        func: function (req, res) {
+            console.log("dwa")
+            get_project({id: req.params.id}).then(project => {
+                project.getMsgs().then(r => {
+                    console.log(r)
+                    res.json(r)
+                })
             })
         }
     }
