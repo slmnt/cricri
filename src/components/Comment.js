@@ -31,6 +31,7 @@ const styles = {
       flexFlow: "column nowrap",
     },
     textContainer: {
+      whiteSpace: "pre-line",
       flex: "1 1 auto"
     },
     avatarContainer: {

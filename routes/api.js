@@ -288,6 +288,11 @@ function delete_user(username) {
         return result.update("deleted", true)
     })
 }
+function delete_project(id) {
+    return get_project({id}).then(result => {
+        return result.destroy()
+    })
+}
 function get_exp(username) {
     return models.User.findAll({
         where: {
@@ -570,6 +575,17 @@ var apis = [
         }
     },
     {
+        // プロジェクト削除
+        method: "delete", url: "/projects/:id", auth: true,
+        func: function (req, res) {
+            return delete_project(req.params.id).then(result => {
+                res.json({ok: true})
+            }).catch(e => {
+                response(res, 400, e)
+            })
+        }
+    },
+    {
         // メール送信
         method: "post", url: "/mail", auth: false,
         func: function (req, res) {
@@ -675,6 +691,21 @@ var apis = [
             get_user({username}).then(user => {
                 get_project({id: req.params.id}).then(project => {
                     project.addMember(user)
+                    res.json({ok: true})
+                })
+            }).catch(e => {
+                response(res, 400, e)
+            })
+        }
+    },
+    {
+        // プロジェクトから脱退
+        method: "delete", url: "/projects/:id/members", auth: true,
+        func: function (req, res) {
+            var {username} = req.user
+            get_user({username}).then(user => {
+                get_project({id: req.params.id}).then(project => {
+                    project.removeMember(user)
                     res.json({ok: true})
                 })
             }).catch(e => {

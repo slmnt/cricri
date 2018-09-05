@@ -146,6 +146,9 @@ var shorthand = {
   joinProject: function(id) {
     return callAPI("post", "/projects/" + id.toString() + "/members", true)
   },
+  leaveProject: function(id) {
+    return callAPI("delete", "/projects/" + id.toString() + "/members", true)
+  },
   getProjectMembers: function(id) {
     return callAPI("get", "/projects/" + id.toString() + "/members", false)
   },

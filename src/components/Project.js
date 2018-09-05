@@ -55,6 +55,12 @@ const styles = {
         height: "70px",
         marginTop: "20px"
     },
+    deleteBtn: {
+        fontSize: "15px",
+        width: "200px",
+        height: "50px",
+        marginTop: "20px"
+    },
     textarea: {
         width: "100%",
         height: "100px"
@@ -113,7 +119,11 @@ class Project extends React.Component {
       const {params} = this.props.match
       const id = parseInt(params.id, 10)
       console.log("project", id)
-      api.getProject(id).then(r => {
+      api.getProject(id).catch(e => {
+        if (e.id == "TableNotFound") {
+            this.props.history.push("/explore")
+        }
+      }).then(r => {
           this.setState({
             id: r.id,
             name: r.name,
@@ -121,18 +131,18 @@ class Project extends React.Component {
             desc: r.desc,
             owner: r.owner
           })
-      })
-      api.getProjectComments(id).then(r => {
-        this.setState({
-            comments: r,
+        api.getProjectComments(id).then(r => {
+            this.setState({
+                comments: r,
+            })
+            console.log("comments", r)
         })
-        console.log("comments", r)
-      })
-      api.getProjectMembers(id).then(r => {
-        this.setState({
-            members: r,
+        api.getProjectMembers(id).then(r => {
+            this.setState({
+                members: r,
+            })
+            console.log("members", r)
         })
-        console.log("members", r)
       })
     }
     onClickJoin = () => {
@@ -145,6 +155,27 @@ class Project extends React.Component {
             console.log(r)
         }).catch(e => {
             this.props.dispatch(openSignin())
+        })
+    }
+    onClickLeave = () => {
+        if (!this.state.id) {
+            return
+        }
+        console.log(this.state)
+        api.leaveProject(this.state.id).then(r => {
+            console.log(r)
+            this.getData()
+        }).catch(e => {
+        })
+    }
+    onClickDelete = () => {
+        if (!this.state.id) {
+            return
+        }
+        console.log(this.state)
+        api.deleteProject(this.state.id).then(r => {
+            this.props.history.push("/mypage")
+        }).catch(e => {
         })
     }
     onClickPost = () => {
@@ -160,6 +191,23 @@ class Project extends React.Component {
         }).catch(e => {
             this.props.dispatch(openSignin())
         })
+    }
+    isMine = () => {
+        if (!this.state.owner || !this.props.userdata) {
+            return false
+        }
+        return this.state.owner.id == this.props.userdata.id
+    }
+    isMember = () => {
+        if (!this.state.members || !this.props.userdata) {
+            return false
+        }
+        for (var m of this.state.members) {
+            if (m.id == this.props.userdata.id) {
+                return true
+            }
+        }
+        return false
     }
     render() {
         const {classes} = this.props;
@@ -178,9 +226,22 @@ class Project extends React.Component {
                 <div>
                     オーナー: <UserLink userdata={this.state.owner} />
                 </div>
-                <Button className={classes.joinBtn} onClick={this.onClickJoin} variant="contained" color="secondary">
-                    参加
-                </Button>
+                { this.isMine() &&
+                    <Button className={classes.deleteBtn} onClick={this.onClickDelete} variant="contained" color="secondary">
+                        削除
+                    </Button>
+                    ||
+                    (
+                        this.isMember() &&
+                        <Button className={classes.joinBtn} onClick={this.onClickLeave} variant="contained" color="primary">
+                            脱退
+                        </Button>
+                        ||
+                        <Button className={classes.joinBtn} onClick={this.onClickJoin} variant="contained" color="primary">
+                            参加
+                        </Button>
+                    )
+                }
               </div>
             </div>
             <div className={classes.desc}>
