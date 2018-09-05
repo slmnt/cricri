@@ -16,7 +16,6 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Form from '../components/Form';
 import UserLink from './UserLink';
-import ProjectLink from './ProjectLink';
 
 import wallpaper from '../wallpaper-cooperating.jpg';
 
@@ -138,95 +137,29 @@ const styles = {
 };
 
 
-class Welcome extends Component {
+class ProjectLink extends Component {
   state = {
-    randomUsers: [],
-    randomProjects: []
-  };
-  componentDidMount() {
-    window.scrollTo(0, 0)
-    this.getRandomUsers()
-    this.getRandomProjects()
-  }
-  getRandomUsers = () => {
-    var params = {
-      q: "",
-      p: 1,
-      l: 5
-    }
-    api.searchUsers(params).then(r => {
-      this.setState({
-        randomUsers: r.items
-      })
-    })
-  }
-  getRandomProjects = () => {
-    var params = {
-      q: "",
-      p: 1,
-      l: 5
-    }
-    api.searchProjects(params).then(r => {
-      this.setState({
-        randomProjects: r.items
-      })
-    })
-  }
-  onKeyPress = (e) => {
-    if (e.key == 'Enter') {
-      this.search(this.refs.search_box.value.trim())
-    }
-  }
-  search = (text) => {
-    var path = getRelativePath(setParams({pathname: "/explore", search: ""}, {q: text, p: 1}))
-    this.props.history.push(path)
-  }
-  render() {
-    const {classes} = this.props;
-    return (
-      <React.Fragment>
-        <Navbar />
-        <div className={classes.nav}>
 
+  }
+  onClick = () => {
+    this.props.history.push("/projects/" + this.props.projdata.id.toString())
+  }
+  render () {
+    const {classes} = this.props
+    return (
+      <div className={classNames(classes.box, classes.shadow)} onClick={this.onClick}>
+        <div className={classes.boxTitle}>
+          {this.props.projdata.name}
         </div>
-        <div className={classes.wp}>
-          <div className={classes.topContainer}>
-            <div className={classes.topItem}>
-                <div className={classes.center} style={{fontSize: "60px", color: "#FFFFFF"}}>
-                  見つけよう
-                </div>
-                <div className={classes.center}>
-                  <input onKeyPress={this.onKeyPress} className={classes.searchBox} ref="search_box" placeholder="プロジェクトを検索"></input>
-                </div>
-            </div>
-          </div>
+        <div className={classes.boxDesc}>
+          {this.props.projdata.desc}
         </div>
-        <div className={classNames(classes.flex)} style={{minHeight: "800px", backgroundColor: "#FFFFFF"}}>
-          <div className={classes.showcaseBlock}>
-            <div className={classNames(classes.title, classes.center)}>
-              注目ユーザ
-            </div>
-            <div className={classes.showcase}>
-              {this.state.randomUsers.map(v => <UserLink userdata={v} />)}
-            </div>
-          </div>
-          <div className={classes.showcaseBlock}>
-            <div className={classNames(classes.title, classes.center)}>
-              注目プロジェクト
-            </div>
-            <div className={classes.showcase}>
-              {
-                this.state.randomProjects.map(v => <ProjectLink projdata={v} />)
-              }
-            </div>
-          </div>
-        </div>
-      </React.Fragment>
-    );
+        <img src={this.props.projdata.img} />
+      </div>
+    )
   }
 }
-Welcome.propTypes = {
+ProjectLink.propTypes = {
   classes: PropTypes.object.isRequired,
 };
-
-export default withStyles(styles)(Welcome);
+export default withRouter(withStyles(styles)(ProjectLink));

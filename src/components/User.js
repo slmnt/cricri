@@ -14,6 +14,7 @@ import Loading from './Loading';
 import spinnerImage from '../spinner.jpg';
 
 import UserLink from './UserLink';
+import ProjectLink from './ProjectLink';
 import Comment from './Comment';
 
 import {test} from '../actions';
@@ -75,6 +76,16 @@ const styles = {
     textarea: {
         width: "100%",
         height: "100px"
+    },
+    projectContainer: {
+      width: "100%",
+      display: "flex",
+      flexFlow: "row wrap",
+      justifyContent: "space-around"
+    },
+    projectBlock: {
+        paddingTop: "40px",
+        paddingBottom: "40px"
     },
     commentContainer: {
         paddingTop: "10px",
@@ -170,6 +181,7 @@ class User extends React.Component {
       email: "",
       avatar: "",
       spinner: true,
+      projects: [],
       comments: []
     }
     dummy = {
@@ -181,6 +193,7 @@ class User extends React.Component {
       email: "a@com",
       avatar: spinnerImage,
       spinner: true,
+      projects: [],
       comments: []
     };
     constructor(props) {
@@ -209,6 +222,11 @@ class User extends React.Component {
         })
         return r.id
       }).then(id => {
+        api.getUserProjects(id).then(r => {
+          this.setState({
+            projects: r,
+          })
+        })
         api.getUserComments(id).then(r => {
           this.setState({
               comments: r,
@@ -295,6 +313,14 @@ class User extends React.Component {
             </div>
             <div className={classes.desc}>
               {this.state.desc}
+            </div>
+            <div className={classes.projctBlock}>
+                <div className={classes.blockTitle}>
+                  参加中のプロジェクト
+                </div>
+                <div className={classes.projectContainer}>
+                    {this.state.projects.map(v => <ProjectLink projdata={v} /> )}
+                </div>
             </div>
             <div className={classes.commentBlock}>
                 <div className={classes.blockTitle}>

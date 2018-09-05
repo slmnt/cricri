@@ -510,8 +510,8 @@ var apis = [
         func: function (req, res) {
             get_user({id: req.params.id})
             .then(result => {
-                result.getProjects().then(function (projects) {
-                    res.json(projects)
+                return result.getProjects().then(function (projects) {
+                    return promise_all(projects, project_to_object).then(r => res.json(projects))
                 })
             }).catch(e => {
                 response(res, 400, e)
@@ -608,7 +608,10 @@ var apis = [
             var params = search_query_to_object(query)
             params.id = req.params.id
             get_project(params).then(project => {
-                project.getMsgs({
+                models.ProjectMsg.findAll({
+                    where: {
+                        PlaceId: project.id
+                    },
                     order: [
                         ["updatedAt", 'DESC'],
                     ]

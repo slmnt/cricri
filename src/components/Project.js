@@ -114,7 +114,7 @@ class Project extends React.Component {
             desc: r.desc,
             owner: r.owner
           })
-        })
+      })
       api.getProjectComments(id).then(r => {
         this.setState({
             comments: r,

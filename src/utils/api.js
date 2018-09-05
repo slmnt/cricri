@@ -162,6 +162,9 @@ var shorthand = {
   },
   getUserComments: function(id) {
     return callAPI("get", "/users/" + id.toString() + "/comments", false)
+  },
+  getUserProjects: function(id) {
+    return callAPI("get", "/users/" + id.toString() + "/projects", false)
   }
 }
 

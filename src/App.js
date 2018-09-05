@@ -95,7 +95,7 @@ class Other extends Component {
           <Switch>
             <Route exact path='/privacy' component={Privacy} />
             <Route exact path='/tos' component={Tos} />
-            <Route exact path='/mypage' render={(props) => <User me {...props} /> } />} />
+            <Route exact path='/mypage' component={User} />
             <RouteFilter exact path='/explore' component={Explore} />
             <RouteFilter exact path='/search' component={SearchUser} />
             <Route exact path='/projects/:id' component={Project} />
