@@ -92,29 +92,32 @@ class Footer extends React.Component {
                 <div className={classes.mainFooterContainer}>
                     <div className={classes.mainFooter}>
                         <div className={classes.navBlock}>
-                            <h4>あおあおあおｋ</h4>
+                            <Link to="/"><h4>ホーム</h4></Link>
                         </div>
                         <div className={classes.navBlock}>
-                            <h4>あおあおあおｋ</h4>
+                            <Link to="/"><h4>ホーム</h4></Link>
                         </div>
                         <div className={classes.navBlock}>
-                            <h4>あおあおあおｋ</h4>
+                            <Link to="/"><h4>ホーム</h4></Link>
                         </div>
                         <div className={classes.navBlock}>
-                            <h4>あおあおあおｋ</h4>
+                            <Link to="/"><h4>ホーム</h4></Link>
                         </div>
                         <div className={classes.navBlock}>
-                            <h4>あおあおあおｋ</h4>
+                            <Link to="/"><h4>ホーム</h4></Link>
                         </div>
                         <div className={classes.navBlock}>
-                            <h4>あおあおあおｋ</h4>
+                            <Link to="/"><h4>ホーム</h4></Link>
                         </div>
                         <div className={classes.navBlock}>
-                            <h4>あおあおあおｋ</h4>
+                            <Link to="/"><h4>ホーム</h4></Link>
                         </div>
-                        <a href="/" onClick={this.logOut}>
-                            ログアウト
-                        </a>
+                        {
+                            this.props.isAuthenticated &&
+                            <a href="/" onClick={this.logOut}>
+                                ログアウト
+                            </a>
+                        }
                     </div>
                 </div>
                 <div className={classNames(classes.bottomFooter, classes.flexContainer)}>

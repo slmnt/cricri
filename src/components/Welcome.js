@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Link, Switch, NavLink, Redirect } from "react-router-dom";
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
+import { withRouter } from "react-router-dom";
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -56,7 +58,7 @@ const styles = {
     paddingRight: "60px",
     paddingLeft: "60px",
     display: "flex",
-    flexFlow: "column wrap",
+    flexFlow: "column nowrap",
     alignContent: "center"
   },
   hugeText: {
@@ -83,12 +85,41 @@ const styles = {
     alignItems: "center",
     alignContent: "center",
     justifyContent: "center",
-    textAlign: "center",
-    fontSize: "25px",
   },
   title: {
     textAlign: "center",
-    fontSize: "25px",
+    fontSize: "40px",
+  },
+  showcase: {
+    display: "flex",
+    flexFlow: "row wrap",
+    justifyContent: "space-around"
+  },
+  showcaseBlock: {
+    marginTop: "80px",
+    marginBottom: "80px",
+  },
+  grad: {
+    background: "linear-gradient(145deg, #509cc7, #4d90fe)"
+  },
+  shadow: {
+    boxShadow: "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2)"
+  },
+  box: {
+    flex: "0 0 auto",
+    width: "300px",
+    height: "200px",
+    marginBottom: "30px",
+    borderRadius: "5px",
+    backgroundColor: "#FFFFFF",
+    textAlign: "center",
+    cursor: "pointer",
+    transition: "backgroundColor 0.5s",
+    border: "none",
+    padding: "1px",
+    "&:hover": {
+      backgroundColor: "#eff5f6"
+    }
   },
   '@media (max-width: 900px)': {
     form: {
@@ -98,6 +129,32 @@ const styles = {
   }
 };
 
+class ProjLink extends Component {
+  state = {
+
+  }
+  onClick = () => {
+    this.props.history.push("/projects/" + this.props.projdata.id.toString())
+  }
+  render () {
+    const {classes} = this.props
+    return (
+      <div className={classNames(classes.box, classes.shadow)} onClick={this.onClick}>
+        <div className={classes.boxTitle}>
+          {this.props.projdata.title}
+        </div>
+        <div className={classes.boxDesc}>
+          {this.props.projdata.desc}
+        </div>
+        <img src={this.props.projdata.img} />
+      </div>
+    )
+  }
+}
+ProjLink.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+ProjLink = withRouter(withStyles(styles)(ProjLink));
 
 class Welcome extends Component {
   state = {
@@ -162,29 +219,25 @@ class Welcome extends Component {
             </div>
           </div>
         </div>
-        <div className={classes.flex} style={{height: "1000px", backgroundColor: "#cccccc"}}>
-          <div className={classes.center}>
-            ユーザ
+        <div className={classNames(classes.flex)} style={{minHeight: "800px", backgroundColor: "#FFFFFF"}}>
+          <div className={classes.showcaseBlock}>
+            <div className={classNames(classes.title, classes.center)}>
+              注目ユーザ
+            </div>
+            <div className={classes.showcase}>
+              {this.state.randomUsers.map(v => <UserLink userdata={v} />)}
+            </div>
           </div>
-          <div>
-            {this.state.randomUsers.map(v => <UserLink userdata={v} />)}
+          <div className={classes.showcaseBlock}>
+            <div className={classNames(classes.title, classes.center)}>
+              注目プロジェクト
+            </div>
+            <div className={classes.showcase}>
+              {
+                this.state.randomProjects.map(v => <ProjLink projdata={v} />)
+              }
+            </div>
           </div>
-          <div className={classes.center}>
-            プロジェクト
-          </div>
-          <div>
-            {
-              //this.state.randomProjects.map(v => <UserLink userdata={v} />)
-            }
-          </div>
-        </div>
-        <div className={classes.flex} style={{height: "1000px", backgroundColor: "#982384"}}>
-          <div className={classes.hugeText}>始めよう</div>
-          <div>適当な画像</div>
-        </div>
-        <div className={classes.flex} style={{height: "1000px", backgroundColor: "#33333"}}>
-          <div className={classes.hugeText}>始めよう</div>
-          <div>適当な画像</div>
         </div>
       </React.Fragment>
     );

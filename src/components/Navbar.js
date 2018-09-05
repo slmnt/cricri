@@ -47,6 +47,13 @@ const styles = {
     alignItems: "center"
   },
   header: {
+    zIndex: "1000",
+    position: "fixed",
+    top: "0px",
+    backgroundColor: "#FFFFFF",
+    boxSizing: "border-box",
+    width: "100%",
+    height: "50px",
     borderBottom: "1px solid rgba(46,62,72,.12)"
   },
   logoContainer: {
@@ -123,6 +130,8 @@ class Navbar extends React.Component {
     const { loggedIn, username } = this.state;
 
     return (
+      <React.Fragment>
+      <div style={{height: "50px"}}></div>
       <header className={classes.header}>
         <nav className={classes.nav}>
           <div className={classes.logoContainer}>
@@ -160,6 +169,7 @@ class Navbar extends React.Component {
           {this.state.showMobileMenu && <MobileMenu closeMobileMenu={this.closeMobileMenu}/>}
         </nav>
       </header>
+      </React.Fragment>
     );
   }
 }

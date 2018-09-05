@@ -660,6 +660,8 @@ var apis = [
                     console.log(r);
                     return promise_all(r, usermsg_to_object).then(result => res.send(result));
                 })
+            }).catch(e => {
+                response(res, 400, e)
             })
         }
     },

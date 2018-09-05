@@ -58,7 +58,7 @@ const styles = {
 
     },
     error: {
-        color: "#884444",
+        color: "#f5002c",
         fontSize: "15px"
     }
 };
@@ -72,7 +72,9 @@ class Form extends React.Component {
     onClickSignin = () => {
         const creds = { username: this.state.username, password: this.state.password }
         //this.props.onLoginClick(creds)
-        loginUser(creds)(store.dispatch).catch(e => {
+        console.log(loginUser, creds, this.props.dispatch)
+        loginUser(creds)(this.props.dispatch).catch(e => {
+            console.log(e)
             this.setState({err_msg: "入力内容にエラーがあります"})
         })
         console.log(creds)    
@@ -134,14 +136,13 @@ Form.propTypes = {
     classes: PropTypes.object.isRequired,
 };
   
-Form = withRouter(withStyles(styles)(Form));
+Form = connect()(withRouter(withStyles(styles)(Form)));
 
 
 class Signin extends React.Component {
     state = {
     };
     componentDidMount() {
-        window.scrollTo(0, 0)
     }
     onClick = () => {
         this.props.close()

@@ -57,11 +57,16 @@ const styles = {
         alignItems: "center"
     },
     menu: {
+    },
+    error: {
+        color: "#f5002c",
+        fontSize: "15px"
     }
 };
 
 class Form extends React.Component {
     state = {
+        err_msg: "",
         username: "",
         password: ""
     };
@@ -75,8 +80,13 @@ class Form extends React.Component {
         console.log(config)
         api.createUser(config).then(response => {
             console.log(response)
-            loginUser(config)(this.props.dispatch)
-        });
+            loginUser(config)(this.props.dispatch).then(r => {
+                this.props.history.push("/mypage")
+            })
+        }).catch(e => {
+            console.log(e)
+            this.setState({err_msg: "入力内容にエラーがあります"})
+        })
     }
     handleChange = name => {
         return event => {
@@ -140,6 +150,9 @@ class Form extends React.Component {
                         </Grid>
                     </Grid>
                     </form>
+                    <div className={classes.error}>
+                        {this.state.err_msg}
+                    </div>
                 </div>
             </Card>
         );
@@ -149,15 +162,35 @@ Form.propTypes = {
     classes: PropTypes.object.isRequired,
 };
   
-Form = connect(withRouter(withStyles(styles)(Form)));
+Form = connect()(withRouter(withStyles(styles)(Form)));
 
+
+class Thankyou extends React.Component {
+    state = {
+    };
+    onClickOk = () => {
+        this.props.history.push("/mypage")
+    }
+    render() {
+        const {classes} = this.props;
+        return (
+            <div>
+                登録完了
+                ありがとうございます
+                <Button onClick={this.onClickOk} variant="contained" color="secondary">
+                    進む
+                </Button>
+            </div>
+        )
+    }
+}
+Thankyou = withRouter(withStyles(styles)(Thankyou))
 
 
 class Signup extends React.Component {
     state = {
     };
     componentDidMount() {
-        window.scrollTo(0, 0)
     }
     onClick = () => {
         this.props.close()
@@ -170,7 +203,11 @@ class Signup extends React.Component {
         return (
           <div className={classes.overlay} onClick={this.onClick}>
             <div className={classes.menu} onClick={this.onClickMenu}>
-              <Form />
+              { this.props.isAuthenticated &&
+                <Thankyou />
+                ||
+                <Form />
+              }
             </div>
           </div>
         );

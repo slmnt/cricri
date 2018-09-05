@@ -13,6 +13,6 @@ module.exports = {
       database: "test", //process.env.DB_NAME,
       host: "localhost", //process.env.DB_HOSTNAME,
       dialect: "postgres", //'mysql',
-      use_env_variable: process.env.DATABASE_URL // heroku 用
+      use_env_variable: "DATABASE_URL" // heroku 用
     }
 };

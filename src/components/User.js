@@ -19,8 +19,11 @@ import Comment from './Comment';
 import {test} from '../actions';
 import api from '../utils/api';
 import {mapStateToProps} from '../utils/misc';
+import { loginUser, logoutUser, getMyInfo } from '../actions'
 
 import axios from 'axios';
+
+import {Edit, Close} from '@material-ui/icons';
 
 
 const styles = {
@@ -32,6 +35,7 @@ const styles = {
       minHeight: "100vh"
     },
     basics: {
+      minHeight: "230px",
       display: "flex",
       justifyContent: "space-around",
       borderBottom: "1px solid #cccccc",
@@ -89,8 +93,74 @@ const styles = {
     },
     blockTitle: {
         fontSize: "25px"
-    }
+    },
+    editable: {
+      display: "flex",
+      flexFlow: "row nowrap"
+    },
+    editableIcon: {
+      cursor: "pointer"
+    },
+    editableIconContainer: {
+      display: "flex",
+      alignItems: "center"
+    },
+    searchBox: {
+      width: "90%",
+      height: "30px",
+      fontSize: "25px",
+      borderRadius: "3px",
+      border: "1px solid #cccccc",
+      outline: "0px",
+      padding: "10px",
+      "&:focus": {
+        outline: "1px solid #4da7fe !important"
+      }
+    },
 };
+
+class EditableText extends React.Component {
+  state = {
+    edit: false
+  }
+  componentDidMount() {
+
+  }
+  onEdit = () => {
+    this.setState({edit: true})
+    this.props.getter(this.props.children[1])
+    console.log(this.props.children)
+  }
+  onClose = () => {
+    this.setState({edit: false})
+    this.props.setter(this.props.children[1])
+    console.log(this.props.children)
+  }
+  render() {
+    const {classes} = this.props
+    return (
+      <div className={classes.editable}>
+        <div style={{width: this.props.rWidth || "auto"}}>
+          {this.props.children[this.props.enable && this.state.edit && 1 || 0]}
+        </div>
+        { this.props.enable && 
+          <div className={classes.editableIconContainer}>
+            {this.state.edit &&
+            <Close className={classes.editableIcon} onClick={this.onClose}/>
+            ||
+            <Edit className={classes.editableIcon} onClick={this.onEdit}/>}
+          </div>
+        }
+      </div>
+    )
+  }
+}
+EditableText.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+EditableText = withStyles(styles)(EditableText);
+
+
 
 class User extends React.Component {
     state = {
@@ -110,55 +180,38 @@ class User extends React.Component {
       name: "Will Willson",
       shortdesc: "Ph.D in Computer Retardation",
       desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      email: "ww@aws",
+      email: "a@com",
       avatar: spinnerImage,
       spinner: true,
       comments: []
     };
     componentDidMount() {
-        window.scrollTo(0, 0)
-        if (this.props.me && this.props.userdata) {
-          this.setState({
-            id: this.props.userdata.username,
-            username: this.props.userdata.name,
-            name: this.props.userdata.name,
-            shortdesc: this.props.userdata.shortDesc,
-            desc: this.props.userdata.desc,
-            avatar: this.props.userdata.avatar,
-          })
-        } else {
-          this.getData()
-        }
-        this.form = React.createRef();
+      window.scrollTo(0, 0);
+      this.getData();
+      this.form = React.createRef();
     }
     getData() {
-      if (this.props.me) {
-        if (!this.state.userdata) {
-          return
-        }
-        var id = this.state.userdata.id
-      } else if (!this.props.me) {
-        var {params} = this.props.match
-        var id = parseInt(params.id, 10)
-        api.getUser(id).then(r => {
-          console.log(r)
-          this.setState({
-            id: r.id,
-            username: r.username,
-            name: r.name,
-            shortdesc: r.shortDesc,
-            desc: r.desc,
-            avatar: r.avatar,
-          })
-        }).catch(e => {
-          this.setState(this.dummy)
-        })
-      }
-      console.log(params, this.state.userdata)
-      api.getUserComments(id).then(r => {
+      var {params} = this.props.match;
+      var id = parseInt(params.id, 10);
+      var hasId = params.id;
+      (!hasId && api.getMyInfo() || api.getUser(id)).then(r => {
         this.setState({
-            comments: r,
+          id: r.id,
+          username: r.username,
+          name: r.name,
+          shortdesc: r.shortDesc,
+          desc: r.desc,
+          avatar: r.avatar,
         })
+        return r.id
+      }).then(id => {
+        api.getUserComments(id).then(r => {
+          this.setState({
+              comments: r,
+          })
+        })
+      }).catch(e => {
+        this.setState(this.dummy)
       })
     }
     onClickPost = () => {
@@ -172,20 +225,6 @@ class User extends React.Component {
     }
     isMe = () => {
       return this.state.id && this.props.userdata && this.state.id.toString() == this.props.userdata.id.toString()
-    }
-    data = (name) => {
-      if (this.props.userdata) {
-        var map = {
-          id: this.props.userdata.username,
-          username: this.props.userdata.name,
-          name: this.props.userdata.name,
-          shortdesc: this.props.userdata.shortDesc,
-          desc: this.props.userdata.desc,
-          avatar: this.props.userdata.avatar,
-        }
-        return map
-      }
-      return this.state
     }
     test = () => {
       var formData = new FormData(this.form.current);
@@ -210,33 +249,49 @@ class User extends React.Component {
         this.getData()
       })
     }
+    onClickSignout = () => {
+      if (!this.props.isAuthenticated) {
+        return
+      }
+      logoutUser()(this.props.dispatch).then(r => {
+        this.props.history.push("/")
+      })
+    }
     render() {
         const {classes} = this.props;
         return (
           <div className={classes.main}>
             <div className={classes.basics}>
               <div className={classes.avatar}>
-                <img className={classes.avatarImage} src={this.data().avatar} />
+                <img className={classes.avatarImage} src={this.state.avatar} />
                 { this.isMe() &&
-                  <div>
-                  <form ref={this.form} id="myForm" name="myForm">
-                    <input type="file" id="avatar" name="avatar" ref="input" />
-                  </form>
-                  <button onClick={this.test}>決定</button>
-                  </div>
+                  <React.Fragment>
+                    <div>
+                      <form ref={this.form} id="myForm" name="myForm">
+                        <input type="file" id="avatar" name="avatar" ref="input" />
+                      </form>
+                      <button onClick={this.test}>決定</button>
+                    </div>
+                    <Button onClick={this.onClickSignout} variant="outlined" color="primary">
+                      ログアウト
+                    </Button>
+                  </React.Fragment>
                 }
               </div>
               <div className={classes.flex}>
-                <div className={classes.name}>
-                  {this.data().name}
-                </div>
+                <EditableText enable={this.isMe()} rWidth={300} setter={(e) => this.setState({name: e.value})} getter={(e) => {e.value = this.state.name}}>
+                  <div className={classes.name}>
+                    {this.state.name}
+                  </div>
+                  <input className={classes.searchBox} />
+                </EditableText>
                 <div className={classes.job}>
-                  {this.data().shortdesc}
+                  {this.state.shortdesc}
                 </div>
               </div>
             </div>
             <div className={classes.desc}>
-              {this.data().desc}
+              {this.state.desc}
             </div>
             <div className={classes.commentBlock}>
                 <div className={classes.blockTitle}>
