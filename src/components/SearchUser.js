@@ -183,7 +183,7 @@ class SearchUser extends React.Component {
     }
     this.state.fetching = true
     var {q, s, p, l} = params
-    l = l || 9
+    params.l = params.l || 9
     api.searchUsers(params).then(result => {
       console.log(result)
       this.setState({
@@ -257,7 +257,7 @@ class SearchUser extends React.Component {
           {
           this.state.pages.map(v => {
             var page = parseInt(this.state.pageFrom) + parseInt(v) - 1
-            var max_page = Math.ceil(this.state.count / this.state.pages.length)
+            var max_page = Math.ceil(this.state.count / this.state.users.length)
             return page <= max_page && <PageButton key={v} num={page} link={this.getLink(page)} isSelected={this.isSelected(page)} callback={this.onClickPageBtn} />
               || false
           })

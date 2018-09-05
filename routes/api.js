@@ -200,11 +200,11 @@ function promise_all(array, func) {
     })
 }
 
-function search_query_to_object(q) {
-    if (!q || Object.keys(q).length === 0) {
+function search_query_to_object(query) {
+    if (!query || Object.keys(query).length === 0) {
         return {}
     }
-    var {q, s, p, l} = q // query, sort, page, limit
+    var {q, s, p, l} = query // query, sort, page, limit
     p = p && parseInt(p)
     l = l && parseInt(l) || 10 // デフォルトで 10
     var param = {}
@@ -255,6 +255,7 @@ function search_user(query, count=false) {
 }
 function search_project(query, count=false) {
     var param = search_query_to_object(query)
+    console.log(query, param)
     if (count) {
         delete param.limit
         delete param.offset

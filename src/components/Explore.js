@@ -159,6 +159,7 @@ class Explore extends React.Component {
   state = {
     fetching: false,
     pageFrom: 1,
+    pageLimit: 4,
     pages: [1, 2, 3, 4, 5, 6, 7],
     people: [],
     projects: []
@@ -188,7 +189,7 @@ class Explore extends React.Component {
     }
     this.state.fetching = true
     var {q, s, p, l} = params
-    l = l || 6
+    params.l = params.l || 6
     api.searchProjects(params).then(result => {
       this.setState({
         count: result.count,
@@ -267,7 +268,8 @@ class Explore extends React.Component {
           {
           this.state.pages.map(v => {
             var page = parseInt(this.state.pageFrom) + parseInt(v) - 1
-            var max_page = Math.ceil(this.state.count / this.state.pages.length)
+            var max_page = Math.ceil(this.state.count / this.state.projects.length)
+            console.log(this.state, page, max_page)
             return page <= max_page && <PageButton key={v} num={page} link={this.getLink(page)} isSelected={this.isSelected(page)} callback={this.onClickPageBtn} />
               || false
           })
