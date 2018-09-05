@@ -116,6 +116,7 @@ function project_to_object(p) {
             return {
                 id: p.id,
                 name: p.name,
+                shortDesc: p.shortDesc,
                 desc: p.desc,
                 owner: {
                     id: o.id,
@@ -528,10 +529,11 @@ var apis = [
         method: "post", url: "/projects", auth: true,
         func: function (req, res) {
             var {username} = req.user
-            var {name, desc} = req.body
+            var {name, shortDesc, desc} = req.body
             get_user({username}).then(user => {
                 models.Project.create({
                     name: name,
+                    shortDesc: shortDesc,
                     desc: desc,
                 }).then(project => {
                     user.addProject(project)

@@ -124,10 +124,11 @@ class Project extends React.Component {
             this.props.history.push("/explore")
         }
       }).then(r => {
+          console.log(r)
           this.setState({
             id: r.id,
             name: r.name,
-            shortdesc: r.shortDesc,
+            shortDesc: r.shortDesc,
             desc: r.desc,
             owner: r.owner
           })

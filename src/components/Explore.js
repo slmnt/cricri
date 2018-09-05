@@ -14,6 +14,7 @@ import url from 'url';
 import api from '../utils/api';
 import { setParams, getSearchParams, getRelativePath } from '../utils/misc';
 
+import ProjectLink from './ProjectLink';
 import Loading from './Loading';
 
 const styles = {
@@ -128,32 +129,6 @@ const styles = {
     }
   }
 }
-
-class Box extends React.Component {
-  state = {};
-  render() {
-    const {classes} = this.props
-    return (
-      <div className={classNames(classes.box, classes.shadow)} onClick={this.props.onClickClbk}>
-        <div className={classes.boxTitle}>
-          {this.props.title}
-        </div>
-        <div className={classes.boxDesc}>
-          {this.props.desc}
-        </div>
-        <img src={this.props.img} />
-      </div>
-    );
-  }
-}
-
-Box.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
-
-Box = withStyles(styles)(Box);
-
-
 
 
 class PageButton extends React.Component {
@@ -277,7 +252,7 @@ class Explore extends React.Component {
           <Loading enable={this.state.projects.length == 0}>
             <div className={classes.boxContainer}>
               {
-                this.state.projects.map(v => <Box id={v.id} title={v.name} desc={v.desc} onClickClbk={this.openProj(v.id)}/>)
+                this.state.projects.map(v => <ProjectLink projdata={v} onClickClbk={this.openProj(v.id)}/>)
               }
             </div>
           </Loading>

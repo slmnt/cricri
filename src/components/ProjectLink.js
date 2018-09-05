@@ -117,6 +117,7 @@ const styles = {
     transition: "backgroundColor 0.5s",
     border: "none",
     padding: "20px",
+    overflow: "hidden",
     "&:hover": {
       backgroundColor: "#eff5f6"
     }
@@ -129,6 +130,7 @@ const styles = {
   boxDesc: {
     fontSize: "20px",
     color: "#cccccc",
+    whiteSpace: "pre-line",
     textOverflow: "ellipsis",
     overflow: "hidden"
   },
@@ -156,7 +158,7 @@ class ProjectLink extends Component {
           {this.props.projdata.name}
         </div>
         <div className={classes.boxDesc}>
-          {this.props.projdata.desc}
+          {this.props.projdata.shortDesc}
         </div>
         <img src={this.props.projdata.img} />
       </div>

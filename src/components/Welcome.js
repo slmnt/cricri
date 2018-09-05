@@ -167,6 +167,7 @@ class Welcome extends Component {
       l: 5
     }
     api.searchProjects(params).then(r => {
+      console.log()
       this.setState({
         randomProjects: r.items
       })
