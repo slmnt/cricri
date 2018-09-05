@@ -154,7 +154,9 @@ PageButton = withStyles(styles)(PageButton);
 class SearchUser extends React.Component {
   state = {
     fetching: false,
+    page: 1,
     pageFrom: 1,
+    pageSize: 6,
     pages: [1, 2, 3, 4, 5, 6, 7],
     people: [],
     users: []
@@ -184,6 +186,10 @@ class SearchUser extends React.Component {
     this.state.fetching = true
     var {q, s, p, l} = params
     params.l = params.l || 9
+    this.setState({
+      page: params.p,
+      pageSize: params.l
+    })
     api.searchUsers(params).then(result => {
       console.log(result)
       this.setState({
@@ -257,7 +263,7 @@ class SearchUser extends React.Component {
           {
           this.state.pages.map(v => {
             var page = parseInt(this.state.pageFrom) + parseInt(v) - 1
-            var max_page = Math.ceil(this.state.count / this.state.users.length)
+            var max_page = Math.ceil(this.state.count / this.state.pageSize)
             return page <= max_page && <PageButton key={v} num={page} link={this.getLink(page)} isSelected={this.isSelected(page)} callback={this.onClickPageBtn} />
               || false
           })
