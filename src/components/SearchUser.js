@@ -164,7 +164,7 @@ class SearchUser extends React.Component {
     this.props.history.listen(this.onRouteChange)
   }
   onRouteChange = (location, action) => {
-    if (location.pathname.indexOf("/explore") != 0) {
+    if (location.pathname.indexOf("/search") != 0) {
       return
     }
     var params = url.parse(location.search, true).query
