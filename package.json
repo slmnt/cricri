@@ -6,13 +6,15 @@
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon ./bin/www --exec babel-node --presets env",
-    "dev2": "npm run build && npm run dev",
+    "dev2": "npm run react-build && npm run dev",
     "prod": "cross-env NODE_ENV=production babel-node ./bin/www --presets env",
-    "prod2": "npm run build && npm run prod",
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "prod2": "npm run react-build && npm run prod",
+    "start": "prod2",
+
+    "react-start": "react-scripts start",
+    "react-build": "react-scripts build",
+    "react-test": "react-scripts test --env=jsdom",
+    "react-eject": "react-scripts eject"
   },
   "dependencies": {
     "@material-ui/core": "^1.4.2",

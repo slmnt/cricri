@@ -191,8 +191,8 @@ function get_project_by_id(id) {
 }
 function promise_all(array, func) {
     var proj = []
-    var parray = array.map(p => func(p).then(r => {
-        proj.push(r)
+    var parray = array.map((p, i) => func(p).then(r => {
+        proj[i] = r
     }))
     return Promise.all(parray).then(r => {
         return proj
@@ -616,7 +616,7 @@ var apis = [
                         ["updatedAt", 'DESC'],
                     ]
                 }).then(r => {
-                    console.log(r);
+                    console.log("dkwokdoawwd: ", r);
                     return promise_all(r, projectmsg_to_object).then(result => res.send(result));
                 })
             })

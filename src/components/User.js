@@ -204,8 +204,13 @@ class User extends React.Component {
     }
     componentDidMount() {
       window.scrollTo(0, 0);
-      this.getData();
       this.form = React.createRef();
+      
+      this.onRouteChange()
+      this.props.history.listen(this.onRouteChange)  
+    }
+    onRouteChange = (location, action) => {
+      this.getData()
     }
     getData() {
       var {params} = this.props.match;
@@ -243,6 +248,7 @@ class User extends React.Component {
         const text = this.refs.text.value
         api.createUserComment(this.state.id, {message: text}).then(r => {
             this.getData()
+            this.refs.text.value = ""
         }).catch(e => {
           this.props.dispatch(openSignin())
         })

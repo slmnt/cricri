@@ -100,7 +100,11 @@ class Project extends React.Component {
     componentDidMount() {
         console.log("Project", this.props)
         window.scrollTo(0, 0)
-        this.getData()
+        this.onRouteChange()
+        this.props.history.listen(this.onRouteChange)  
+    }
+    onRouteChange = (location, action) => {
+    this.getData()
     }
     getData() {
       const {params} = this.props.match
@@ -133,7 +137,11 @@ class Project extends React.Component {
             return
         }
         console.log(this.state)
-        api.joinProject(this.state.id).then(r => console.log(r)).catch(e => {
+        api.joinProject(this.state.id).then(r => {
+            this.getData()
+            console.log(r)
+            this.refs.text.value = ""
+        }).catch(e => {
             this.props.dispatch(openSignin())
         })
     }
