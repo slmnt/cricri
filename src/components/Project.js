@@ -100,11 +100,13 @@ class Project extends React.Component {
     componentDidMount() {
         console.log("Project", this.props)
         window.scrollTo(0, 0)
-        this.onRouteChange()
+        this.onRouteChange(this.props.location)
         this.props.history.listen(this.onRouteChange)  
     }
     onRouteChange = (location, action) => {
-    this.getData()
+        if (location.pathname.indexOf("/projects") == 0) {
+            this.getData()
+        }
     }
     getData() {
       const {params} = this.props.match
@@ -140,13 +142,12 @@ class Project extends React.Component {
         api.joinProject(this.state.id).then(r => {
             this.getData()
             console.log(r)
-            this.refs.text.value = ""
         }).catch(e => {
             this.props.dispatch(openSignin())
         })
     }
     onClickPost = () => {
-        if (!this.state.id) {
+        if (!this.state.id || this.refs.text.value == "") {
             return
         }
         const text = this.refs.text.value
@@ -154,6 +155,7 @@ class Project extends React.Component {
         api.createProjectComment(this.state.id, {message: text}).then(r => {
             console.log(r)
             this.getData()
+            this.refs.text.value = ""
         }).catch(e => {
             this.props.dispatch(openSignin())
         })

@@ -133,7 +133,7 @@ class Footer extends React.Component {
                 </div>
                 <div className={classNames(classes.bottomFooter, classes.flexContainer)}>
                     <div>
-                        <div className={classNames(classes.copyright, classes.inlineBox)}>© 2018 CriCri® Co., Ltd. All rights reserved™™</div>
+                        <div className={classNames(classes.copyright, classes.inlineBox)}>②2018 CriCri</div>
                         <div className={classNames(classes.inlineBox, classes.smallLink)}><Link className={classes.link} to="/privacy">プライバシーポリシー</Link></div>
                         <div className={classNames(classes.inlineBox, classes.smallLink)}><Link className={classes.link} to="/tos">利用規約</Link></div>
                     </div>

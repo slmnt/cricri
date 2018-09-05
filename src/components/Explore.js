@@ -189,6 +189,9 @@ class Explore extends React.Component {
     this.props.history.listen(this.onRouteChange)
   }
   onRouteChange = (location, action) => {
+    if (location.pathname.indexOf("/explore") != 0) {
+      return
+    }
     var params = url.parse(location.search, true).query
     if (!this.state.fetching) {
       let from = Math.max(1, params.p - this.state.pages.length / 2 + 1)
@@ -206,6 +209,7 @@ class Explore extends React.Component {
     }
     this.state.fetching = true
     var {q, s, p, l} = params
+    l = l || 6
     api.searchProjects(params).then(result => {
       this.setState({
         count: result.count,

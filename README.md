@@ -1,4 +1,4 @@
-cricri®
+cricri
 
 ## ツール
 + react

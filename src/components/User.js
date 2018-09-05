@@ -206,11 +206,14 @@ class User extends React.Component {
       window.scrollTo(0, 0);
       this.form = React.createRef();
       
-      this.onRouteChange()
+      this.onRouteChange(this.props.location)
       this.props.history.listen(this.onRouteChange)  
     }
     onRouteChange = (location, action) => {
-      this.getData()
+      if (location.pathname.indexOf("/users") == 0 || location.pathname.indexOf("/mypage") == 0) {
+        console.log(location)
+        this.getData()
+      }
     }
     getData() {
       var {params} = this.props.match;
@@ -242,7 +245,7 @@ class User extends React.Component {
       })
     }
     onClickPost = () => {
-        if (!this.state.id) {
+        if (!this.state.id || this.refs.text.value == "") {
             return
         }
         const text = this.refs.text.value
@@ -320,7 +323,7 @@ class User extends React.Component {
             <div className={classes.desc}>
               {this.state.desc}
             </div>
-            <div className={classes.projctBlock}>
+            <div className={classes.projectBlock}>
                 <div className={classes.blockTitle}>
                   参加中のプロジェクト
                 </div>
