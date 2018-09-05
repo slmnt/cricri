@@ -24,7 +24,7 @@ const styles = {
     mainFooterContainer: {
         paddingTop: "60px",
         paddingBottom: "60px",
-        height: "400px",
+        height: "300px",
     },
     mainFooter: {
         height: "inherit",
@@ -85,6 +85,14 @@ class Footer extends React.Component {
         e.preventDefault()
         logoutUser()(this.props.dispatch)
     }
+    signIn = (e) => {
+        e.preventDefault()
+        openSignin()(this.props.dispatch)
+    }
+    signUp = (e) => {
+        e.preventDefault()
+        openSignup()(this.props.dispatch)
+    }
     render() {
         const {classes} = this.props;
         return (
@@ -95,28 +103,31 @@ class Footer extends React.Component {
                             <Link to="/"><h4>ホーム</h4></Link>
                         </div>
                         <div className={classes.navBlock}>
-                            <Link to="/"><h4>ホーム</h4></Link>
+                            <Link to="/create"><h4>プロジェクト検索</h4></Link>
                         </div>
                         <div className={classes.navBlock}>
-                            <Link to="/"><h4>ホーム</h4></Link>
+                            <Link to="/search"><h4>ユーザー検索</h4></Link>
                         </div>
                         <div className={classes.navBlock}>
-                            <Link to="/"><h4>ホーム</h4></Link>
+                            <Link to="/explore"><h4>プロジェクト作成</h4></Link>
                         </div>
                         <div className={classes.navBlock}>
-                            <Link to="/"><h4>ホーム</h4></Link>
-                        </div>
-                        <div className={classes.navBlock}>
-                            <Link to="/"><h4>ホーム</h4></Link>
-                        </div>
-                        <div className={classes.navBlock}>
-                            <Link to="/"><h4>ホーム</h4></Link>
+                            <Link to="/mypage"><h4>マイページ</h4></Link>
                         </div>
                         {
                             this.props.isAuthenticated &&
                             <a href="/" onClick={this.logOut}>
                                 ログアウト
                             </a>
+                            ||
+                            <React.Fragment>
+                                <a href="/" onClick={this.signIn}>
+                                    ログイン
+                                </a>
+                                <a href="/" onClick={this.signUp}>
+                                    新規登録
+                                </a>
+                            </React.Fragment>
                         }
                     </div>
                 </div>

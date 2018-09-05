@@ -237,45 +237,6 @@ class App extends Component {
         }
         { this.props.signinModal && <Signin close={this.closeSignin} /> }
         { this.props.signupModal && <Signup close={this.closeSignup} /> }
-
-        <input type='text' ref='username' />
-        <input type='password' ref='password' />
-        <input type='text' ref='email' />
-        <button onClick={(event) => this.handleClickCreate(event)}>
-          Create user
-        </button>
-        <button onClick={(event) => this.handleClick(event)}>
-          Login
-        </button>
-        <button onClick={(event) => this.handleClickLogout(event)}>
-          Logout
-        </button>
-        <button onClick={(event) => this.handleClickDelete(event)}>
-          Delete
-        </button>
-        <button onClick={(event) => this.handleClickTest(event)}>
-          Test
-        </button>
-        <button onClick={(event) => this.handleClickSearch(event)}>
-          search
-        </button>
-        method: <input ref="method" />
-        path: <input ref="path" />
-        body: <textarea ref="body"/>
-        auth: <textarea ref="auth"/>
-        <button onClick={(event) => this.handleClickSend(event)}>
-          send
-        </button>
-        <div>
-          name: <input ref="projname" />
-          desc: <input ref="projdesc" />
-          <button onClick={(event) => this.handleClickCreateProject(event)}>
-            create proj
-          </button>
-          <button onClick={(event) => this.handleClickGetProjects(event)}>
-            get proj
-          </button>
-        </div>
       </div>
     );
   }

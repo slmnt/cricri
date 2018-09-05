@@ -21,6 +21,7 @@ import Comment from './Comment';
 import {test} from '../actions';
 import api from '../utils/api';
 import {mapStateToProps} from '../utils/misc';
+import { loginUser, logoutUser, getMyInfo, openSignin, openSignup, closeSignin, closeSignup } from '../actions'
 
 
 const styles = {
@@ -126,6 +127,8 @@ class ProjectCreator extends React.Component {
         api.createProject(params).then(r => {
             console.log("create project: ", r)
             this.props.history.push("/projects/" + r.id)
+        }).catch(e => {
+          openSignin()(this.props.dispatch)
         })
     }
     handleChange = name => {

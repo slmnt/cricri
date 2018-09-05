@@ -18,6 +18,7 @@ import spinnerImage from '../spinner.jpg';
 
 import api from '../utils/api';
 import {mapStateToProps} from '../utils/misc';
+import { loginUser, logoutUser, getMyInfo, openSignin, openSignup, closeSignin, closeSignup, test } from '../actions'
 
 const styles = {
     main: {
@@ -132,7 +133,9 @@ class Project extends React.Component {
             return
         }
         console.log(this.state)
-        api.joinProject(this.state.id).then(r => console.log(r))
+        api.joinProject(this.state.id).then(r => console.log(r)).catch(e => {
+            openSignin()(this.props.dispatch)
+        })
     }
     onClickPost = () => {
         if (!this.state.id) {
@@ -143,6 +146,8 @@ class Project extends React.Component {
         api.createProjectComment(this.state.id, {message: text}).then(r => {
             console.log(r)
             this.getData()
+        }).catch(e => {
+            openSignin()(this.props.dispatch)
         })
     }
     render() {

@@ -135,10 +135,10 @@ class MobileMenu extends React.Component {
               </React.Fragment>
               ||
               <React.Fragment>
-                <div className={classes.item} onClick={this.goTo("/")}>
+                <div className={classes.item} onClick={this.signUp}>
                   登録
                 </div>
-                <div className={classes.item} onClick={this.goTo("/")}>
+                <div className={classes.item} onClick={this.signIn}>
                   ログイン
                 </div>
               </React.Fragment>

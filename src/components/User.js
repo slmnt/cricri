@@ -19,7 +19,7 @@ import Comment from './Comment';
 import {test} from '../actions';
 import api from '../utils/api';
 import {mapStateToProps} from '../utils/misc';
-import { loginUser, logoutUser, getMyInfo } from '../actions'
+import {loginUser, logoutUser, getMyInfo, openSignin, openSignup, closeSignin, closeSignup} from '../actions';
 
 import axios from 'axios';
 
@@ -127,14 +127,12 @@ class EditableText extends React.Component {
 
   }
   onEdit = () => {
+    this.props.onOpen()
     this.setState({edit: true})
-    this.props.getter(this.props.children[1])
-    console.log(this.props.children)
   }
   onClose = () => {
+    this.props.onClose()
     this.setState({edit: false})
-    this.props.setter(this.props.children[1])
-    console.log(this.props.children)
   }
   render() {
     const {classes} = this.props
@@ -185,6 +183,12 @@ class User extends React.Component {
       spinner: true,
       comments: []
     };
+    constructor(props) {
+      super(props);
+      this.nameRef = React.createRef();
+      this.shortDescRef = React.createRef();
+      this.descRef = React.createRef();
+    }
     componentDidMount() {
       window.scrollTo(0, 0);
       this.getData();
@@ -221,6 +225,8 @@ class User extends React.Component {
         const text = this.refs.text.value
         api.createUserComment(this.state.id, {message: text}).then(r => {
             this.getData()
+        }).catch(e => {
+          openSignin()(this.props.dispatch)
         })
     }
     isMe = () => {
@@ -279,11 +285,11 @@ class User extends React.Component {
                 }
               </div>
               <div className={classes.flex}>
-                <EditableText enable={this.isMe()} rWidth={300} setter={(e) => this.setState({name: e.value})} getter={(e) => {e.value = this.state.name}}>
+                <EditableText enable={this.isMe()} rWidth={300} onOpen={() => this.nameRef.current.value = this.state.name} onClose={() => this.setState({name: this.nameRef.current.value})}>
                   <div className={classes.name}>
                     {this.state.name}
                   </div>
-                  <input className={classes.searchBox} />
+                  <input className={classes.searchBox} ref={this.nameRef} />
                 </EditableText>
                 <div className={classes.job}>
                   {this.state.shortdesc}

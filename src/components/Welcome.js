@@ -116,10 +116,17 @@ const styles = {
     cursor: "pointer",
     transition: "backgroundColor 0.5s",
     border: "none",
-    padding: "1px",
+    padding: "20px",
     "&:hover": {
       backgroundColor: "#eff5f6"
     }
+  },
+  boxTitle: {
+    fontSize: "30px"
+  },
+  boxDesc: {
+    fontSize: "20px",
+    color: "#cccccc"
   },
   '@media (max-width: 900px)': {
     form: {
@@ -141,7 +148,7 @@ class ProjLink extends Component {
     return (
       <div className={classNames(classes.box, classes.shadow)} onClick={this.onClick}>
         <div className={classes.boxTitle}>
-          {this.props.projdata.title}
+          {this.props.projdata.name}
         </div>
         <div className={classes.boxDesc}>
           {this.props.projdata.desc}
