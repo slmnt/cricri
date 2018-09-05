@@ -111,11 +111,15 @@ const styles = {
     }
   },
   boxTitle: {
-    fontSize: "30px"
+    fontSize: "30px",
+    textOverflow: "ellipsis",
+    overflow: "hidden"
   },
   boxDesc: {
     fontSize: "20px",
-    color: "#cccccc"
+    color: "#cccccc",
+    textOverflow: "ellipsis",
+    overflow: "hidden"
   },
   '@media (max-width: 900px)': {
     pagination: {
