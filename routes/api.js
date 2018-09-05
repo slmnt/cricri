@@ -12,7 +12,6 @@ var path_cfg  = require('../config/path');
 var multer  = require('multer')
 
 const crypto = require('crypto');
-const hash = crypto.createHash('md5');
 
 import errors from '../utils/errors'
 var mail = require('../utils/mail');
@@ -25,7 +24,7 @@ var expiresIn = 3600; //604800; // トークンの有効時間 (秒)  一週間�
 function random_hash() {
     var current_date = (new Date()).valueOf().toString();
     var random = Math.random().toString();
-    return hash.update(current_date + random).digest('hex');
+    return crypto.createHash('md5').update(current_date + random).digest('hex');
 }
 function fileFilter(req, file, cb) {
     console.log(file)

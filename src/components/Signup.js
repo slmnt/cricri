@@ -61,6 +61,12 @@ const styles = {
     error: {
         color: "#f5002c",
         fontSize: "15px"
+    },
+    thanks: {
+        display: "flex",
+        flexFlow: "column nowrap",
+        justifyContent: "space-evenly",
+        height: "300px"
     }
 };
 
@@ -172,16 +178,18 @@ class Thankyou extends React.Component {
     state = {
     };
     onClickOk = () => {
-        this.props.history.push("/mypage")
+        //this.props.history.push("/mypage")
+        this.props.close()
     }
     render() {
         const {classes} = this.props;
         return (
-            <div>
-                登録完了
-                ありがとうございます
+            <div className={classes.thanks}>
+                <div style={{fontSize: "30px"}}>
+                    登録完了
+                </div>
                 <Button onClick={this.onClickOk} variant="contained" color="secondary">
-                    進む
+                    閉じる
                 </Button>
             </div>
         )
@@ -212,9 +220,9 @@ class Signup extends React.Component {
           <div className={classes.overlay} onClick={this.onClick}>
             <div className={classes.menu} onClick={this.onClickMenu}>
               { this.state.showThankyou &&
-                <Thankyou close={this.close} />
+                <Thankyou close={this.onClick}/>
                 ||
-                <Form />
+                <Form close={this.close} />
               }
             </div>
           </div>
