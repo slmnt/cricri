@@ -134,7 +134,7 @@ class Project extends React.Component {
         }
         console.log(this.state)
         api.joinProject(this.state.id).then(r => console.log(r)).catch(e => {
-            openSignin()(this.props.dispatch)
+            this.props.dispatch(openSignin())
         })
     }
     onClickPost = () => {
@@ -147,7 +147,7 @@ class Project extends React.Component {
             console.log(r)
             this.getData()
         }).catch(e => {
-            openSignin()(this.props.dispatch)
+            this.props.dispatch(openSignin())
         })
     }
     render() {

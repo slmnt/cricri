@@ -128,7 +128,7 @@ class ProjectCreator extends React.Component {
             console.log("create project: ", r)
             this.props.history.push("/projects/" + r.id)
         }).catch(e => {
-          openSignin()(this.props.dispatch)
+          this.props.dispatch(openSignin())
         })
     }
     handleChange = name => {

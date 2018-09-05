@@ -127,8 +127,8 @@ class EditableText extends React.Component {
 
   }
   onEdit = () => {
-    this.props.onOpen()
     this.setState({edit: true})
+    this.props.onOpen()
   }
   onClose = () => {
     this.props.onClose()
@@ -226,7 +226,7 @@ class User extends React.Component {
         api.createUserComment(this.state.id, {message: text}).then(r => {
             this.getData()
         }).catch(e => {
-          openSignin()(this.props.dispatch)
+          this.props.dispatch(openSignin())
         })
     }
     isMe = () => {
@@ -285,12 +285,9 @@ class User extends React.Component {
                 }
               </div>
               <div className={classes.flex}>
-                <EditableText enable={this.isMe()} rWidth={300} onOpen={() => this.nameRef.current.value = this.state.name} onClose={() => this.setState({name: this.nameRef.current.value})}>
                   <div className={classes.name}>
                     {this.state.name}
                   </div>
-                  <input className={classes.searchBox} ref={this.nameRef} />
-                </EditableText>
                 <div className={classes.job}>
                   {this.state.shortdesc}
                 </div>

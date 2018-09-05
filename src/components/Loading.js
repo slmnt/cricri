@@ -45,7 +45,9 @@ class Loading extends React.Component {
         const {classes} = this.props;
         return (
           <React.Fragment>
-            {this.props.enable && <Spinner />}
+            {
+              //this.props.enable && <Spinner />
+            }
             {!this.props.enable && this.props.children}
           </React.Fragment>
         );

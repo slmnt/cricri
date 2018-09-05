@@ -87,11 +87,11 @@ class Footer extends React.Component {
     }
     signIn = (e) => {
         e.preventDefault()
-        openSignin()(this.props.dispatch)
+        this.props.dispatch(openSignin())
     }
     signUp = (e) => {
         e.preventDefault()
-        openSignup()(this.props.dispatch)
+        this.props.dispatch(openSignup())
     }
     render() {
         const {classes} = this.props;

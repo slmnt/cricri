@@ -80,9 +80,12 @@ class Form extends React.Component {
         console.log(config)
         api.createUser(config).then(response => {
             console.log(response)
+            this.props.close()
+            /*
             loginUser(config)(this.props.dispatch).then(r => {
                 this.props.history.push("/mypage")
             })
+             */
         }).catch(e => {
             console.log(e)
             this.setState({err_msg: "入力内容にエラーがあります"})
@@ -189,8 +192,10 @@ Thankyou = withRouter(withStyles(styles)(Thankyou))
 
 class Signup extends React.Component {
     state = {
+        showThankyou: false
     };
     componentDidMount() {
+        this.setState({showThankyou: false})
     }
     onClick = () => {
         this.props.close()
@@ -198,13 +203,16 @@ class Signup extends React.Component {
     onClickMenu = (e) => {
         e.stopPropagation()
     }
+    close = () => {
+        this.setState({showThankyou: true})        
+    }
     render() {
         const {classes} = this.props;
         return (
           <div className={classes.overlay} onClick={this.onClick}>
             <div className={classes.menu} onClick={this.onClickMenu}>
-              { this.props.isAuthenticated &&
-                <Thankyou />
+              { this.state.showThankyou &&
+                <Thankyou close={this.close} />
                 ||
                 <Form />
               }
