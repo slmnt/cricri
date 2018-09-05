@@ -41,7 +41,8 @@ const styles = {
     },
     desc: {
         fontSize: "20px",
-        paddingBottom: "20px"
+        paddingBottom: "20px",
+        whiteSpace: "pre-line"
     },
     avatar: {
         width: 200,
